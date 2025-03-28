@@ -3,15 +3,24 @@ package com.example.quickcast.ui
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -21,6 +30,8 @@ import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.TabPosition
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -29,13 +40,19 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.VIEW_MODEL_STORE_OWNER_KEY
 import com.example.quickcast.R
 import com.example.quickcast.enum_classes.NavigationRailItems
 
@@ -78,19 +95,24 @@ fun HomeScreen(paddingValues : PaddingValues){
 
 @Composable
 fun Content(){
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.SpaceBetween,
-        horizontalAlignment = Alignment.End
+            .padding(24.dp)
     ) {
-        Text(
-            text = stringResource(R.string.sites),
-            fontSize = 26.sp,
-            textAlign = TextAlign.Start,
-            modifier = Modifier.fillMaxWidth()
-        )
+        Column(
+        ) {
+            Text(
+                text = stringResource(R.string.sites),
+                fontSize = 26.sp
+            )
+
+            LazyColumn{
+                items(3){
+                    Site()
+                }
+            }
+        }
 
 
         FloatingActionButton(
@@ -100,10 +122,55 @@ fun Content(){
                     imageVector = Icons.Default.Add,
                     contentDescription = null
                 )
-            }
+            },
+            modifier = Modifier.align(Alignment.BottomEnd)
         )
     }
 
+}
+
+@Composable
+fun Site() {
+    Row(
+        modifier = Modifier
+            .padding(vertical = 8.dp)
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Image(
+            painter = painterResource(R.drawable.ic_launcher_foreground),
+            contentDescription = null,
+            modifier = Modifier.clip(CircleShape)
+                .size(50.dp)
+                .background(Color.Red)
+        )
+
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(horizontal = 8.dp),
+            verticalArrangement = Arrangement.SpaceBetween,
+            horizontalAlignment = Alignment.Start
+        ){
+            Text(
+                text = "Title String",
+                fontWeight = FontWeight.ExtraBold
+            )
+
+            Text(
+                text = "Description String Description String Description String Description String Description StringDescription StringDescription String",
+                maxLines = 1
+            )
+        }
+
+        if(true){
+            Box(
+                modifier = Modifier
+                    .background(Color.Green, CircleShape)
+                    .size(5.dp)
+            )
+        }
+    }
 }
 
 

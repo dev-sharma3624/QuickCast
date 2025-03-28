@@ -22,7 +22,8 @@ private val LightColorScheme = lightColorScheme(
     secondary = PurpleGrey80,
     tertiary = Pink80,
     surface = sideGrillLight,
-    background = sideGrillLight
+    background = sideGrillLight,
+    primaryContainer = sideGrillLight
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),

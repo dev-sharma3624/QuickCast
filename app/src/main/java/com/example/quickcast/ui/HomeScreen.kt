@@ -53,6 +53,8 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.VIEW_MODEL_STORE_OWNER_KEY
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.quickcast.R
 import com.example.quickcast.enum_classes.NavigationRailItems
 
@@ -60,12 +62,15 @@ import com.example.quickcast.enum_classes.NavigationRailItems
 @Composable
 fun HomeScreenPreview(){
     Scaffold {
-        HomeScreen(it)
+        HomeScreen(it, rememberNavController())
     }
 }
 
 @Composable
-fun HomeScreen(paddingValues : PaddingValues){
+fun HomeScreen(
+    paddingValues : PaddingValues,
+    navController: NavController
+){
     var selectedNavigationRailItem by remember { mutableStateOf(NavigationRailItems.SITES) }
 
     Row(

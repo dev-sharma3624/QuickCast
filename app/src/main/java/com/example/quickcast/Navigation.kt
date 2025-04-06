@@ -10,17 +10,15 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.quickcast.enum_classes.BottomNavigationItems
-import com.example.quickcast.enum_classes.NavigationRailItems
-import com.example.quickcast.ui.HomeScreen
-import com.example.quickcast.ui.SiteScreen
+import com.example.quickcast.ui.screens.HomeScreen
 
 @Composable
-fun BottomBarNavigation(paddingValues: PaddingValues, navController: NavHostController){
+fun BottomBarNavigation(paddingValues: PaddingValues, navHostController: NavHostController){
 
-    NavHost(navController = navController, startDestination = BottomNavigationItems.Home.name) {
+    NavHost(navController = navHostController, startDestination = BottomNavigationItems.Home.name) {
 
         composable(route = BottomNavigationItems.Home.name){
-            HomeScreen(paddingValues, navController)
+            HomeScreen(paddingValues, navHostController)
         }
 
         composable(route = BottomNavigationItems.Notifications.name){

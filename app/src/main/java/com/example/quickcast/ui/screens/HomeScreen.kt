@@ -1,4 +1,4 @@
-package com.example.quickcast.ui
+package com.example.quickcast.ui.screens
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateIntAsState
@@ -29,6 +29,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.quickcast.BlankScreen
 import com.example.quickcast.enum_classes.NavigationRailItems
+import com.example.quickcast.ui.screens.home_sub_screens.SiteScreen
 
 @Preview(showBackground = true)
 @Composable
@@ -41,7 +42,7 @@ fun HomeScreenPreview(){
 @Composable
 fun HomeScreen(
     paddingValues : PaddingValues,
-    navController: NavHostController
+    navHostController: NavHostController
 ){
     var selectedNavigationRailItem by remember { mutableStateOf(NavigationRailItems.SITES) }
 

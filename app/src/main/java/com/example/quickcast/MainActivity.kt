@@ -6,7 +6,7 @@ import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.ui.graphics.toArgb
-import com.example.quickcast.ui.ScreenContainer
+import com.example.quickcast.ui.screen_container.ScreenContainer
 import com.example.quickcast.ui.theme.QuickCastTheme
 import com.example.quickcast.ui.theme.sideGrillLight
 

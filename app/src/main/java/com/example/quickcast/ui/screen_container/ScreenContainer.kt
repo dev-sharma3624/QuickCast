@@ -63,10 +63,10 @@ fun ScreenContainer(){
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions(),
         onResult = {permissions ->
-            Log.d("NAMASTE", "inside onResult : ${permissions.entries}")
+            val permissionService = PermissionService()
             permissions.entries.forEach {
                 if(!it.value){
-                    permissionDialogEntries.add(PermissionService.getNeededPermission(it.key))
+                    permissionDialogEntries.add(permissionService.getNeededPermission(it.key))
                 }
             }
         }
@@ -138,59 +138,10 @@ fun ScreenContainer(){
 
         LaunchedEffect(Unit) {
             Log.d("NAMASTE", "recomposition called")
-            permissionLauncher.launch(PermissionService.getPermissionArray().toTypedArray())
+            permissionLauncher.launch(PermissionService().getPermissionArray().toTypedArray())
         }
 
         BottomBarNavigation(paddingValues, navController)
-
-        /*if(permissionDialogEntries.isNotEmpty()){
-            Log.d("NAMASTE", "permissionDialogEntry.first() = ${permissionDialogEntries.first()}")
-            PermissionAlertDialog(
-                permission = permissionDialogEntries.first(),
-                isDeclinedPermanently = !ActivityCompat.shouldShowRequestPermissionRationale(
-                    LocalContext.current as Activity,
-                    permissionDialogEntries.first().permission
-                ),
-                onOkClick = {
-                    permissionDialogEntries.remove(permissionDialogEntries.first())
-                    permissionLauncher.launch(arrayOf(permissionDialogEntries.first().permission))
-                },
-                onSettingsClick = {
-                    permissionDialogEntries.remove(permissionDialogEntries.first())
-                    context.startActivity(
-                        Intent(
-                            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                            Uri.fromParts("package", context.packageName, null)
-                        )
-                    )
-                },
-                onDismissRequest = {permissionDialogEntries.remove(permissionDialogEntries.first())}
-            )
-        }*/
-
-        /*permissionDialogEntries.forEach{
-            PermissionAlertDialog(
-                permission = it,
-                isDeclinedPermanently = !ActivityCompat.shouldShowRequestPermissionRationale(
-                    LocalContext.current as Activity,
-                    it.permission
-                ),
-                onOkClick = {
-                    permissionDialogEntries.remove(it)
-                    permissionLauncher.launch(arrayOf(it.permission))
-                },
-                onSettingsClick = {
-                    permissionDialogEntries.remove(it)
-                    context.startActivity(
-                        Intent(
-                            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                            Uri.fromParts("package", context.packageName, null)
-                        )
-                    )
-                },
-                onDismissRequest = {permissionDialogEntries.remove(it)}
-            )
-        }*/
 
     }
 

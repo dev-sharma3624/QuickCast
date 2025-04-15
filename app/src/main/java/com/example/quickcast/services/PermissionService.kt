@@ -3,7 +3,7 @@ package com.example.quickcast.services
 import android.util.Log
 import com.example.quickcast.enum_classes.NeededPermissions
 
-object PermissionService {
+class PermissionService {
 
     fun getNeededPermission(permission: String): NeededPermissions {
         return NeededPermissions.entries.find { permission == it.permission } ?: throw IllegalArgumentException("Permission $permission is not supported")

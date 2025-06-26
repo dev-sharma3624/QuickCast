@@ -17,6 +17,15 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.quickcast.ui.screens.home_sub_screens.AddSiteScreen
 
+/**
+ * [AddSiteBottomSheet] is the bottom sheet component with animation that contains
+ * the content of the wraps the [AddSiteScreen] which includes content of that screen.
+ * @param bottomSheetController controls when to expand and retract the bottom sheet.
+ *      First call to the [AddSiteBottomSheet] is always with true value for this param.
+ *      Then [callBack] makes it false.
+ * @param callBack method to retract the bottom sheet. Sets the value of [bottomSheetController] to false.
+*/
+
 @Composable
 fun AddSiteBottomSheet(
     bottomSheetController: Boolean,

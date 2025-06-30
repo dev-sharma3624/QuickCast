@@ -20,10 +20,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
@@ -32,7 +30,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateListOf
@@ -48,19 +45,20 @@ import androidx.compose.ui.unit.sp
 import com.example.quickcast.data_classes.Contact
 import com.example.quickcast.data_classes.SelectedContacts
 import com.example.quickcast.services.ContactsService
-import com.example.quickcast.ui.theme.sideGrillLight
+import com.example.quickcast.viewModels.HomeVM
 import kotlinx.coroutines.delay
 
 /**
- *[AddSiteScreen] contains the screen content with all the UI components and functionalities
+ *[AddSiteScreenFirst] contains the screen content with all the UI components and functionalities
  * to create new groups/sites
- * @param callBack method to close the [AddSiteScreen]
+ * @param callBack method to close the [AddSiteScreenFirst]
  */
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AddSiteScreen(
-    callBack : () -> Unit
+fun AddSiteScreenFirst(
+    callBack: () -> Unit,
+    viewModel: HomeVM
 ){
     val context = LocalContext.current
 
@@ -68,25 +66,28 @@ fun AddSiteScreen(
     val contacts = ContactsService().getContactsList(context)
 
     //list of contacts selected for group/site creation
-    val selectedContacts = remember { mutableStateListOf(SelectedContacts()) }
+    /*TODO()
+    val selectedContacts = remember { mutableStateListOf(SelectedContacts()) }*/
+    val selectedContacts = viewModel.selectedContacts
 
     //launched effect aiding selected contacts' row animation
-    LaunchedEffect(selectedContacts) {
+    LaunchedEffect(selectedContacts.size) {
         //time matches the time of animation
         delay(500)
 
-        //removing entries that have been unselected after selection after exit animation
+        viewModel.unselectContact()
+
+        //TODO(): Redundant code useful if debugging required
+        /*//removing entries that have been unselected after selection after exit animation
         if(selectedContacts.isNotEmpty()){
             selectedContacts.removeIf { it.contact != null && !it.isSelected }
         }
-
         //removing more than one redundant entries
         if(selectedContacts[0] == SelectedContacts() && selectedContacts.size > 1){
             selectedContacts.removeRange(1, selectedContacts.size-1)
-        }
+        }*/
     }
 
-    //Closes the bottom sheet when user presses back button
     BackHandler {
         callBack()
     }
@@ -141,50 +142,58 @@ fun AddSiteScreen(
                 ){
                     if (it.contact != null){
                         SelectedContactItem(it){selectedContact ->
-                            selectedContacts[selectedContacts.indexOf(selectedContact)].isSelected = false
-                            selectedContacts.add(SelectedContacts())
+                            viewModel.updateContactsList(selectedContact, false)
+                            //TODO(): Redundant code useful if debugging required
+                            /*selectedContacts[selectedContacts.indexOf(selectedContact)].isSelected = false
+                            selectedContacts.add(SelectedContacts())*/
                         }
                     }
                 }
             }
         }
 
-        Box {
-            //List of all contacts
-            LazyColumn(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                items(contacts){
-                    Column(
-                        modifier = Modifier.padding(8.dp)
-                    ) {
-                        ContactListItem(
-                            contact = it,
-                            onClick = {selectedContact ->
+        //List of all contacts
+        LazyColumn(
+            modifier = Modifier.fillMaxSize()
+        ) {
+            items(contacts){
+                Column(
+                    modifier = Modifier.padding(8.dp)
+                ) {
+                    ContactListItem(
+                        contact = it,
+                        onClick = {selectedContact ->
 
-                                //logic of removing/unselecting an entry
-                                if(selectedContacts.contains(selectedContact)){
-                                    selectedContacts[selectedContacts.indexOf(selectedContact)].isSelected = false
-                                    selectedContacts.add(SelectedContacts())
-                                }
-                                //logic of adding/selecting a new entry
-                                else{
-                                    selectedContacts.add(selectedContacts.indexOf(SelectedContacts()), selectedContact)
-                                }
+                            //logic of removing/unselecting an entry
+                            if(selectedContacts.contains(selectedContact)){
+                                viewModel.updateContactsList(selectedContact, false)
+                                //TODO(): Redundant code useful if debugging required
+                                /*selectedContacts[selectedContacts.indexOf(selectedContact)].isSelected = false
+                                selectedContacts.add(SelectedContacts())*/
+                            }
+                            //logic of adding/selecting a new entry
+                            else{
+                                viewModel.selectContact(selectedContact)
+                                //TODO(): Redundant code useful if debugging required
+                               /* selectedContacts.add(selectedContacts.indexOf(SelectedContacts()), selectedContact)*/
+                            }
 
-                            },
-                            isSelected = selectedContacts.contains(SelectedContacts(it, true))
-                        )
-                    }
+                        },
+                        isSelected = selectedContacts.contains(SelectedContacts(it, true))
+                    )
                 }
             }
+        }
+
+        /*Box {
+
 
             Box(
                 modifier = Modifier.align(Alignment.BottomEnd)
                     .padding(32.dp)
                     .background(color = Color(0xffecedef), shape = RoundedCornerShape(25))
                     .clickable {
-
+                        onClickNext(selectedContacts)
                     },
                 contentAlignment = Alignment.BottomEnd
             ) {
@@ -195,7 +204,7 @@ fun AddSiteScreen(
                         .size(24.dp)
                 )
             }
-        }
+        }*/
     }
 }
 

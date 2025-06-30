@@ -1,5 +1,12 @@
 package com.example.quickcast
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,10 +17,19 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.quickcast.enum_classes.BottomNavigationItems
+import com.example.quickcast.enum_classes.OtherScreens
 import com.example.quickcast.ui.screens.HomeScreen
+import com.example.quickcast.ui.screens.home_sub_screens.AddSiteScreenFirst
+import com.example.quickcast.ui.screens.home_sub_screens.AddSiteScreenSecond
+import com.example.quickcast.viewModels.HomeVM
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
-fun BottomBarNavigation(paddingValues: PaddingValues, navHostController: NavHostController){
+fun PrimaryNavigation(
+    paddingValues: PaddingValues,
+    navHostController: NavHostController,
+    homeVM: HomeVM
+){
 
     NavHost(navController = navHostController, startDestination = BottomNavigationItems.Home.name) {
 
@@ -27,6 +43,35 @@ fun BottomBarNavigation(paddingValues: PaddingValues, navHostController: NavHost
 
         composable(route = BottomNavigationItems.You.name){
             BlankScreen("YOU")
+        }
+
+        composable(
+            route = OtherScreens.ADD_SITE_SCREEN_FIRST.name,
+            enterTransition = if(navHostController.previousBackStackEntry?.destination?.route !=
+                OtherScreens.ADD_SITE_SCREEN_FIRST.name){
+
+                { slideInVertically(animationSpec = tween(800)) { it } +
+                        fadeIn(animationSpec = tween(800)) }
+
+            }else { null },
+            exitTransition = { slideOutVertically(animationSpec = tween(800)) { it } +
+                    fadeOut(animationSpec = tween(800)) }
+        ) {
+            AddSiteScreenFirst(
+                callBack = {
+                    navHostController.popBackStack()
+                    homeVM.clearContactList()
+                },
+                viewModel = homeVM
+            )
+        }
+
+        composable(
+            route = OtherScreens.ADD_SITE_SCREEN_SECOND.name,
+            enterTransition = { slideInHorizontally { it } },
+            exitTransition = { slideOutHorizontally { it } }
+        ){
+            AddSiteScreenSecond()
         }
     }
 }

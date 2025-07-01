@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -22,7 +23,6 @@ import com.example.quickcast.ui.screens.HomeScreen
 import com.example.quickcast.ui.screens.home_sub_screens.AddSiteScreenFirst
 import com.example.quickcast.ui.screens.home_sub_screens.AddSiteScreenSecond
 import com.example.quickcast.viewModels.HomeVM
-import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun PrimaryNavigation(
@@ -68,10 +68,18 @@ fun PrimaryNavigation(
 
         composable(
             route = OtherScreens.ADD_SITE_SCREEN_SECOND.name,
-            enterTransition = { slideInHorizontally { it } },
-            exitTransition = { slideOutHorizontally { it } }
+            enterTransition = { slideInHorizontally(animationSpec = tween(800)) { it } +
+                    fadeIn(animationSpec = tween(800)) },
+            exitTransition = { slideOutHorizontally(animationSpec = tween(800)) { it } +
+                    fadeOut(animationSpec = tween(800))}
         ){
-            AddSiteScreenSecond()
+            AddSiteScreenSecond(
+                viewModel = homeVM,
+                onBackPressed = {
+                    navHostController.popBackStack()
+                    homeVM.clearSiteName()
+                }
+            )
         }
     }
 }

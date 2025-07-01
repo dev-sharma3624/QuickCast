@@ -157,7 +157,7 @@ fun ScreenContainer(){
                                 navController.navigate(OtherScreens.ADD_SITE_SCREEN_FIRST.name)
 
                             Icons.AutoMirrored.Filled.ArrowForward ->
-                                if(homeVM.selectedContacts.size > 2){
+                                if(homeVM.selectedContacts.first().contact != null){
                                     Log.d("NAMASTE", "size in container : ${homeVM.selectedContacts}")
                                     Log.d("NAMASTE", "size in container : ${homeVM.selectedContacts.size}")
                                     navController.navigate(OtherScreens.ADD_SITE_SCREEN_SECOND.name)

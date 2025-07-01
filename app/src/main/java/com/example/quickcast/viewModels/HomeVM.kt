@@ -4,6 +4,8 @@ import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalGraphicsContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,6 +16,8 @@ import kotlinx.coroutines.launch
 class HomeVM : ViewModel() {
     private val _selectedContacts = mutableStateListOf(SelectedContacts())
     val selectedContacts : List<SelectedContacts> = _selectedContacts
+
+    val siteName = mutableStateOf("")
 
     fun selectContact(c : SelectedContacts){
         _selectedContacts.add(_selectedContacts.indexOf(SelectedContacts()), c)
@@ -37,6 +41,10 @@ class HomeVM : ViewModel() {
     fun updateContactsList(selectedContacts: SelectedContacts, value: Boolean){
         _selectedContacts[_selectedContacts.indexOf(selectedContacts)].isSelected = value
         _selectedContacts.add(SelectedContacts())
+        viewModelScope.launch {
+            delay(500)
+            unselectContact()
+        }
     }
 
      fun clearContactList(){
@@ -45,5 +53,12 @@ class HomeVM : ViewModel() {
              _selectedContacts.add(0, SelectedContacts())
              _selectedContacts.removeRange(1, _selectedContacts.size - 1)
          }
+    }
+
+    fun clearSiteName() {
+        viewModelScope.launch {
+            delay(100)
+            siteName.value = ""
+        }
     }
 }

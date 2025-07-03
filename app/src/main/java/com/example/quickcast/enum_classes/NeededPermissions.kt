@@ -16,11 +16,11 @@ enum class NeededPermissions(
         permanentlyDeniedDescription = "This permission is needed to read your phone contacts. Please grant the permission in app settings."
     ),
 
-    READ_SMS(
-    permission = android.Manifest.permission.READ_SMS,
-    title = "Read SMS Permission",
-    description = "This permission is needed to read your phone SMS. Please grant the permission.",
-    permanentlyDeniedDescription = "This permission is needed to read your phone SMS. Please grant the permission in app settings."
+    RECEIVE_SMS(
+    permission = android.Manifest.permission.RECEIVE_SMS,
+    title = "Receive SMS Permission",
+    description = "This permission is needed to receive your phone SMS. Please grant the permission.",
+    permanentlyDeniedDescription = "This permission is needed to receive your phone SMS. Please grant the permission in app settings."
     ),
 
     SEND_SMS(

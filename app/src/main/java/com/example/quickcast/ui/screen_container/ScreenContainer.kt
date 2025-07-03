@@ -26,6 +26,7 @@ package com.example.quickcast.ui.screen_container
  import androidx.compose.material.icons.Icons
  import androidx.compose.material.icons.automirrored.filled.ArrowForward
  import androidx.compose.material.icons.filled.Add
+ import androidx.compose.material.icons.filled.Check
  import androidx.compose.material3.FabPosition
  import androidx.compose.material3.FloatingActionButton
  import androidx.compose.material3.Icon
@@ -76,6 +77,7 @@ fun ScreenContainer(){
         derivedStateOf { when(currentBackStackEntry?.destination?.route){
             BottomNavigationItems.Home.name -> Icons.Default.Add
             OtherScreens.ADD_SITE_SCREEN_FIRST.name -> Icons.AutoMirrored.Filled.ArrowForward
+            OtherScreens.ADD_SITE_SCREEN_SECOND.name -> Icons.Default.Check
             else -> null
         } }
     }
@@ -161,6 +163,14 @@ fun ScreenContainer(){
                                     Log.d("NAMASTE", "size in container : ${homeVM.selectedContacts}")
                                     Log.d("NAMASTE", "size in container : ${homeVM.selectedContacts.size}")
                                     navController.navigate(OtherScreens.ADD_SITE_SCREEN_SECOND.name)
+                                }
+
+                            Icons.Default.Check ->
+                                if(homeVM.siteName.value != ""){
+                                    Log.d("NAMASTE", "inside on click")
+                                    homeVM.setIsSmsProcessActive()
+                                    Log.d("NAMASTE", "${homeVM.isSmsProcessActive.value}")
+                                    homeVM.scheduleSmsSending(context)
                                 }
 
                             else -> {}

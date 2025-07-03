@@ -1,5 +1,6 @@
 package com.example.quickcast.viewModels
 
+import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
@@ -9,7 +10,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalGraphicsContext
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.workDataOf
+import com.example.quickcast.SmsUtils.SmsSenderWorker
 import com.example.quickcast.data_classes.SelectedContacts
+import com.example.quickcast.data_classes.SmsFormats.SiteInvite
+import com.example.quickcast.data_classes.SmsFormats.SmsPackage
+import com.example.quickcast.enum_classes.SmsTypes
+import com.google.gson.Gson
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -18,6 +27,9 @@ class HomeVM : ViewModel() {
     val selectedContacts : List<SelectedContacts> = _selectedContacts
 
     val siteName = mutableStateOf("")
+
+    private val _isSmsProcessActive = mutableStateOf(false)
+    val isSmsProcessActive : State<Boolean> = _isSmsProcessActive
 
     fun selectContact(c : SelectedContacts){
         _selectedContacts.add(_selectedContacts.indexOf(SelectedContacts()), c)
@@ -60,5 +72,51 @@ class HomeVM : ViewModel() {
             delay(100)
             siteName.value = ""
         }
+    }
+
+    fun scheduleSmsSending(context: Context) {
+
+        val smsList = createSmsPackage()
+
+        val gson = Gson()
+        val jsonMsgList = gson.toJson(smsList)
+
+        val inputData = workDataOf(
+            "messageList" to jsonMsgList
+        )
+
+        val request = OneTimeWorkRequestBuilder<SmsSenderWorker>()
+            .setInputData(inputData)
+            .build()
+
+        WorkManager.getInstance(context).enqueue(request)
+
+        _isSmsProcessActive.value = false
+
+    }
+
+    private fun createSmsPackage() : List<SmsPackage>{
+        val smsList = mutableListOf<SmsPackage>()
+
+        selectedContacts.forEach {
+            if(it.contact != null){
+                smsList.add(
+                    SmsPackage(
+                        type = SmsTypes.SITE_INVITE,
+                        phone = it.contact.number,
+                        message = SiteInvite(
+                            n = siteName.value,
+                            l = null
+                        )
+                    )
+                )
+            }
+        }
+
+        return smsList
+    }
+
+    fun setIsSmsProcessActive() {
+        _isSmsProcessActive.value = true
     }
 }

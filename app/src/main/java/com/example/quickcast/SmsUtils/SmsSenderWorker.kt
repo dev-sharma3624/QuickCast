@@ -12,6 +12,13 @@ import com.example.quickcast.data_classes.SmsFormats.SmsPackage
 import com.example.quickcast.enum_classes.SmsTypes
 import com.google.gson.reflect.TypeToken
 import com.google.gson.Gson
+import kotlinx.coroutines.delay
+
+
+/**
+ * [SmsSenderWorker] is a [CoroutineWorker] which will do background work
+ * of sending sms when user performs some action on application's UI.
+ * */
 
 class SmsSenderWorker(
     appContext: Context,
@@ -20,15 +27,20 @@ class SmsSenderWorker(
 
     override suspend fun doWork(): Result {
 
+        // fetching json-format string containing message list.
         val jsonList = inputData.getString("messageList") ?: return Result.failure()
 
         val gson = Gson()
         val type = object : TypeToken<List<SmsPackage>>() {}.type
+
+        // converting json-format string back to List<SmsPackage>
         val messageList: List<SmsPackage> = gson.fromJson(jsonList, type)
 
         val smsManager = SmsManager.getDefault()
 
         messageList.forEach { smsPackage ->
+
+            // PendingIntent that will be broadcast when message is delivered successfully
             val deliveredIntent = PendingIntent.getBroadcast(
                 applicationContext,
                 0,
@@ -37,6 +49,8 @@ class SmsSenderWorker(
             )
 
 
+            // sending each message to the specific phone number contained in smsPackage with the message in json-formatted string
+            // with a specfied pending intent that will be broadcast when message is delivered successfully.
             smsManager.sendTextMessage(smsPackage.phone, null, gson.toJson(smsPackage), null, deliveredIntent)
 
             Log.d("SMS_DELIVERY", "src : ${smsPackage.phone}, content : ${smsPackage}")

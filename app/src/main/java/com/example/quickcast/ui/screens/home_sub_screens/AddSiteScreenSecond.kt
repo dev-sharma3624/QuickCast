@@ -45,6 +45,15 @@ import com.example.quickcast.R
 import com.example.quickcast.ui.theme.sideGrillLight
 import com.example.quickcast.viewModels.HomeVM
 
+/**
+ * [AddSiteScreenSecond] contains UI of the screen that appears after the user
+ * has selected contacts for site/group creation.
+ *
+ * @param viewModel viewmodel of type [HomeVM] that contains states and other data with methods required to process them.
+ *
+ * @param onBackPressed controls navigation when user presses top-app bar navigation icon or system back button.
+ * */
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun AddSiteScreenSecond(
@@ -59,10 +68,12 @@ fun AddSiteScreenSecond(
     Log.d("NAMASTE", "boolean : $isActive")
 
 
+    // controls action of back button
     BackHandler {
         onBackPressed()
     }
 
+    // Parent container
     Column(
         modifier = Modifier.fillMaxSize()
             .background(Color.White)
@@ -99,11 +110,13 @@ fun AddSiteScreenSecond(
 
                 Column {
 
+                    // row containing dp icon button with text field for entering group name
                     Row(
                         modifier = Modifier.fillMaxWidth()
                             .padding(16.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        //Dp icon button
                         IconButton(
                             onClick = {},
                             content = {
@@ -121,6 +134,7 @@ fun AddSiteScreenSecond(
 
                         Spacer(Modifier.padding(horizontal = 16.dp))
 
+                        // text field for entering site/group name
                         OutlinedTextField(
                             value = viewModel.siteName.value,
                             onValueChange = {newValue-> viewModel.siteName.value = newValue},
@@ -139,8 +153,11 @@ fun AddSiteScreenSecond(
 
                     HorizontalDivider()
 
+                    // content wrapping capable row that displays all the selected contacts.
                     FlowRow {
                         viewModel.selectedContacts.forEach {
+
+                            //null-check needed for empty contacts added to list for the sake of animation
                             if(it.contact != null){
                                 Column(
                                     modifier = Modifier.padding(8.dp),

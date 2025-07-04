@@ -67,12 +67,23 @@ fun ScreenContainerPreview(){
 }
 
 
+/**
+ * [ScreenContainer] parent container of the whole application that contains
+ * scaffold layout and calls navigation component.
+ * */
+
 @Composable
 fun ScreenContainer(){
 
     val navController  = rememberNavController()
+
+    //for controlling the color of bottom navigation items based on which is currently selected
     var currentScreen by remember{ mutableStateOf(BottomNavigationItems.Home) }
+
+    //for controlling the icon displayed inside fab and animation for bottom bar to make it visible/invisible
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
+
+    //decides icon for fab based on current page address
     val fabIcon by remember {
         derivedStateOf { when(currentBackStackEntry?.destination?.route){
             BottomNavigationItems.Home.name -> Icons.Default.Add
@@ -81,6 +92,9 @@ fun ScreenContainer(){
             else -> null
         } }
     }
+
+    // contains entries for permissions that have been denied by the user and require
+    // alert dialog to be displayed
     val permissionDialogEntries = remember { mutableStateListOf<NeededPermissions>() }
     val context = LocalContext.current
 

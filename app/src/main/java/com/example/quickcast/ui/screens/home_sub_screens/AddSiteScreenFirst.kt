@@ -73,7 +73,7 @@ fun AddSiteScreenFirst(
         //time matches the time of animation
         delay(500)
 
-        viewModel.unselectContact()
+        viewModel.sanitizeContactList()
 
         //TODO(): Redundant code useful if debugging required
         /*//removing entries that have been unselected after selection after exit animation
@@ -140,7 +140,7 @@ fun AddSiteScreenFirst(
                 ){
                     if (it.contact != null){
                         SelectedContactItem(it){selectedContact ->
-                            viewModel.updateContactsList(selectedContact, false)
+                            viewModel.unselectContacts(selectedContact, false)
                             //TODO(): Redundant code useful if debugging required
                             /*selectedContacts[selectedContacts.indexOf(selectedContact)].isSelected = false
                             selectedContacts.add(SelectedContacts())*/
@@ -164,7 +164,7 @@ fun AddSiteScreenFirst(
 
                             //logic of removing/unselecting an entry
                             if(selectedContacts.contains(selectedContact)){
-                                viewModel.updateContactsList(selectedContact, false)
+                                viewModel.unselectContacts(selectedContact, false)
                                 //TODO(): Redundant code useful if debugging required
                                 /*selectedContacts[selectedContacts.indexOf(selectedContact)].isSelected = false
                                 selectedContacts.add(SelectedContacts())*/

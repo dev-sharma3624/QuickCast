@@ -13,16 +13,28 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.quickcast.enum_classes.BottomNavigationItems
 import com.example.quickcast.enum_classes.OtherScreens
+import com.example.quickcast.ui.screen_container.ScreenContainer
 import com.example.quickcast.ui.screens.HomeScreen
 import com.example.quickcast.ui.screens.home_sub_screens.AddSiteScreenFirst
 import com.example.quickcast.ui.screens.home_sub_screens.AddSiteScreenSecond
 import com.example.quickcast.viewModels.HomeVM
+
+
+/**
+ * [PrimaryNavigation] contains the Navigation component of the application.
+ *
+ * @param paddingValues [PaddingValues] passed on to various screens incoming from [ScreenContainer].
+ *
+ * @param navHostController [NavHostController] passed from [ScreenContainer]
+ *
+ * @param homeVM [HomeVM] passed from [ScreenContainer] to function as a shared viewModel for common data that
+ * needs to be used by multiple screens.
+ * */
 
 @Composable
 fun PrimaryNavigation(

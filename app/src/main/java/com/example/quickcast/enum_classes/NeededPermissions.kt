@@ -2,6 +2,16 @@ package com.example.quickcast.enum_classes
 
 
 
+/**
+ * [NeededPermissions] : enum class containing all the permissions that are needed by
+ * the application to function.
+ *
+ * @param permission contains the string value representing a permission.
+ * @param title contains string that will displayed in title of alert dialog if permission is denied.
+ * @param description contains description that will displayed in alert dialog if permission is denied but not permanently.
+ * @param permanentlyDeniedDescription contains description that will displayed in alert dialog if permission is denied permanently.
+ * */
+
 enum class NeededPermissions(
     val permission : String,
     val title : String,

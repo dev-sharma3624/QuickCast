@@ -25,6 +25,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.quickcast.R
 
+
+/**
+ * [SiteScreen] defines how the Site Screen which is a sub-screen of home screen accessed
+ * by navigation rail will be displayed.
+ * */
+
 @Composable
 fun SiteScreen(){
     Column(
@@ -45,6 +51,9 @@ fun SiteScreen(){
     }
 }
 
+/**
+ * [Site] defines how each Site element in the Sites list will look.
+ * */
 @Composable
 fun Site() {
     Row(
@@ -53,6 +62,7 @@ fun Site() {
             .fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
+        // dp of the group/site
         Image(
             painter = painterResource(R.drawable.ic_launcher_foreground),
             contentDescription = null,
@@ -68,17 +78,20 @@ fun Site() {
             verticalArrangement = Arrangement.SpaceBetween,
             horizontalAlignment = Alignment.Start
         ){
+            // site name
             Text(
                 text = "Title String",
                 fontWeight = FontWeight.ExtraBold
             )
 
+            // last message
             Text(
                 text = "Description String Description String Description String Description String Description StringDescription StringDescription String",
                 maxLines = 1
             )
         }
 
+        // green circle depicting whether there is any unread update in any site.
         if(true){
             Box(
                 modifier = Modifier

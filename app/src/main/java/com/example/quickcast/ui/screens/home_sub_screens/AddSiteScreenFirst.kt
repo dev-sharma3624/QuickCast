@@ -64,8 +64,6 @@ fun AddSiteScreenFirst(
     val contacts = ContactsService().getContactsList(context)
 
     //list of contacts selected for group/site creation
-    /*TODO()
-    val selectedContacts = remember { mutableStateListOf(SelectedContacts()) }*/
     val selectedContacts = viewModel.selectedContacts
 
     //launched effect aiding selected contacts' row animation
@@ -74,16 +72,6 @@ fun AddSiteScreenFirst(
         delay(500)
 
         viewModel.sanitizeContactList()
-
-        //TODO(): Redundant code useful if debugging required
-        /*//removing entries that have been unselected after selection after exit animation
-        if(selectedContacts.isNotEmpty()){
-            selectedContacts.removeIf { it.contact != null && !it.isSelected }
-        }
-        //removing more than one redundant entries
-        if(selectedContacts[0] == SelectedContacts() && selectedContacts.size > 1){
-            selectedContacts.removeRange(1, selectedContacts.size-1)
-        }*/
     }
 
     BackHandler {
@@ -141,9 +129,6 @@ fun AddSiteScreenFirst(
                     if (it.contact != null){
                         SelectedContactItem(it){selectedContact ->
                             viewModel.unselectContacts(selectedContact, false)
-                            //TODO(): Redundant code useful if debugging required
-                            /*selectedContacts[selectedContacts.indexOf(selectedContact)].isSelected = false
-                            selectedContacts.add(SelectedContacts())*/
                         }
                     }
                 }
@@ -165,15 +150,10 @@ fun AddSiteScreenFirst(
                             //logic of removing/unselecting an entry
                             if(selectedContacts.contains(selectedContact)){
                                 viewModel.unselectContacts(selectedContact, false)
-                                //TODO(): Redundant code useful if debugging required
-                                /*selectedContacts[selectedContacts.indexOf(selectedContact)].isSelected = false
-                                selectedContacts.add(SelectedContacts())*/
                             }
                             //logic of adding/selecting a new entry
                             else{
                                 viewModel.selectContact(selectedContact)
-                                //TODO(): Redundant code useful if debugging required
-                               /* selectedContacts.add(selectedContacts.indexOf(SelectedContacts()), selectedContact)*/
                             }
 
                         },
@@ -182,27 +162,6 @@ fun AddSiteScreenFirst(
                 }
             }
         }
-
-        /*Box {
-
-
-            Box(
-                modifier = Modifier.align(Alignment.BottomEnd)
-                    .padding(32.dp)
-                    .background(color = Color(0xffecedef), shape = RoundedCornerShape(25))
-                    .clickable {
-                        onClickNext(selectedContacts)
-                    },
-                contentAlignment = Alignment.BottomEnd
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                    contentDescription = null,
-                    modifier = Modifier.padding(20.dp)
-                        .size(24.dp)
-                )
-            }
-        }*/
     }
 }
 

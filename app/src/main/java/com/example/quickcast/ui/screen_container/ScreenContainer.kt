@@ -76,6 +76,7 @@ fun ScreenContainerPreview(){
 fun ScreenContainer(){
 
     val navController  = rememberNavController()
+    val context = LocalContext.current
 
     //for controlling the color of bottom navigation items based on which is currently selected
     var currentScreen by remember{ mutableStateOf(BottomNavigationItems.Home) }
@@ -96,22 +97,26 @@ fun ScreenContainer(){
     // contains entries for permissions that have been denied by the user and require
     // alert dialog to be displayed
     val permissionDialogEntries = remember { mutableStateListOf<NeededPermissions>() }
-    val context = LocalContext.current
 
+    //asking for necessary permissions
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions(),
         onResult = {permissions ->
             val permissionService = PermissionService()
             permissions.entries.forEach {
+                // if permission is denied
                 if(!it.value){
+                    // adding permission string to permissionDialogEntries to show custom dialog.
                     permissionDialogEntries.add(permissionService.getNeededPermission(it.key))
                 }
             }
         }
     )
 
+    //viewModel inserted with DI.
     val homeVM : HomeVM = koinViewModel()
 
+    // displaying custom alert dialog if permission(s) is/are denied.
     permissionDialogEntries.forEach {
         PermissionAlertDialog(
             permission = it,
@@ -142,6 +147,8 @@ fun ScreenContainer(){
 
         bottomBar = {
             AnimatedVisibility(
+                // displaying/hiding bottom bar based on whether the current page is one
+                // of the bottom navigation pages
                 visible = currentBackStackEntry?.destination?.route in listOf(BottomNavigationItems.Home.name,
                     BottomNavigationItems.You.name, BottomNavigationItems.Notifications.name),
                 enter = slideInVertically(animationSpec = tween(100)) { it },
@@ -164,6 +171,8 @@ fun ScreenContainer(){
         },
 
         floatingActionButton = {
+            // null check to control that on what pages fab will be visible.
+            // If a page doesn't have fab then fabIcon = null.
             if (fabIcon != null){
                 Fab(
                     fabIcon = fabIcon!!,
@@ -173,17 +182,17 @@ fun ScreenContainer(){
                                 navController.navigate(OtherScreens.ADD_SITE_SCREEN_FIRST.name)
 
                             Icons.AutoMirrored.Filled.ArrowForward ->
+                                // if condition to make sure navigation takes place if at least one
+                                // contacts is selected.
                                 if(homeVM.selectedContacts.first().contact != null){
-                                    Log.d("NAMASTE", "size in container : ${homeVM.selectedContacts}")
-                                    Log.d("NAMASTE", "size in container : ${homeVM.selectedContacts.size}")
                                     navController.navigate(OtherScreens.ADD_SITE_SCREEN_SECOND.name)
                                 }
 
                             Icons.Default.Check ->
+                                // ensuring invite message is sent only if the group/site
+                                // name is not empty
                                 if(homeVM.siteName.value != ""){
-                                    Log.d("NAMASTE", "inside on click")
                                     homeVM.setIsSmsProcessActive()
-                                    Log.d("NAMASTE", "${homeVM.isSmsProcessActive.value}")
                                     homeVM.scheduleSmsSending(context)
                                 }
 
@@ -198,8 +207,8 @@ fun ScreenContainer(){
 
     ) { paddingValues ->
 
+        // asks for permission only once avoiding infinite recompositions.
         LaunchedEffect(Unit) {
-            Log.d("NAMASTE", "recomposition called")
             permissionLauncher.launch(PermissionService().getPermissionArray().toTypedArray())
         }
 
@@ -207,6 +216,14 @@ fun ScreenContainer(){
 
     }
 }
+
+/**
+ * [Fab] defines how the fab button will look. It also contains animation to change the icon
+ * inside fab based on which screen we're currently at.
+ *
+ * @param fabIcon icon that is put inside the fab.
+ * @param onClickFab function to invoke on click.
+ * */
 
 @Composable
 fun Fab(

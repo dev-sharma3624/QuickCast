@@ -19,6 +19,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.quickcast.enum_classes.BottomNavigationItems
 
+
+/**
+ * [BottomBar] : defines how the Bottom bar of application will look.
+ *
+ * @param currentScreen [BottomNavigationItems] that contains icon and name to displayed in tab.
+ * @param onClick navigates to the screen pressed and changes the `currentScreen` state in [ScreenContainer] that
+ * controls the color of the screen tabs based on which is currently being displayed and which is not.
+ * */
+
 @Composable
 fun BottomBar(
     currentScreen: BottomNavigationItems,
@@ -42,13 +51,11 @@ fun BottomBar(
                 Icon(
                     painter = painterResource(it.icon),
                     contentDescription = null,
-//                    modifier = Modifier.size(32.dp),
                     tint = if(currentScreen == it) Color.Black else Color(0xffa1a2a7)
                 )
                 Text(
                     text = it.name,
                     color = if(currentScreen == it) Color.Black else Color(0xffa1a2a7),
-//                    fontWeight = FontWeight.Bold,
                     fontSize = 12.sp
                 )
             }

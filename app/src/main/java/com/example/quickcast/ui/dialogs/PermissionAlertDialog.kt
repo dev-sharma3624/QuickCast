@@ -31,6 +31,22 @@ fun PermissionAlertDialogPreview(){
     }
 }
 
+/**
+ * [PermissionAlertDialog] defines how the custom dialog will look which will be
+ * displayed when necessary permissions are denied.
+ *
+ * @param permission a member of [NeededPermissions] which contains required data to show dialog.
+ *
+ * @param isDeclinedPermanently controls what type of message to display in alert based on whether
+ * the permission has been declined permanently or not.
+ *
+ * @param onOkClick function to invoke when user clicks Ok button in dialog.
+ *
+ * @param onSettingsClick function to open settings to grant permission if permission has been denied permanently.
+ *
+ * @param onDismissRequest function to invoke when user want ot dismiss dialog.
+ * */
+
 @Composable
 fun PermissionAlertDialog(
     permission : NeededPermissions,
@@ -39,8 +55,6 @@ fun PermissionAlertDialog(
     onSettingsClick : () -> Unit,
     onDismissRequest : () -> Unit
 ){
-
-    Log.d("NAMASTE", "inside alert dialog: ${permission.permission}")
 
     AlertDialog(
         title = {
@@ -67,7 +81,6 @@ fun PermissionAlertDialog(
                         if(isDeclinedPermanently){
                             onSettingsClick()
                         }else{
-                            Log.d("NAMASTE", "OK")
                             onOkClick()
                         }
                     }
@@ -77,7 +90,6 @@ fun PermissionAlertDialog(
             )
         },
         onDismissRequest = {
-            Log.d("NAMASTE", "Dismiss")
             onDismissRequest()
         },
     )

@@ -61,12 +61,7 @@ fun AddSiteScreenSecond(
     onBackPressed : () -> Unit
 ) {
 
-    Log.d("NAMASTE", "value inside vm : ${viewModel.isSmsProcessActive.value}")
-
     val isActive by viewModel.isSmsProcessActive
-
-    Log.d("NAMASTE", "boolean : $isActive")
-
 
     // controls action of back button
     BackHandler {

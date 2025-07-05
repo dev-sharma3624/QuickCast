@@ -30,6 +30,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.quickcast.BlankScreen
 import com.example.quickcast.enum_classes.NavigationRailItems
 import com.example.quickcast.ui.screens.home_sub_screens.SiteScreen
+import com.example.quickcast.ui.screen_container.ScreenContainer
 
 @Preview(showBackground = true)
 @Composable
@@ -38,6 +39,12 @@ fun HomeScreenPreview(){
         HomeScreen(it, rememberNavController())
     }
 }
+
+/**
+ * [HomeScreen] defines how the Home screen of the application will look.
+ *
+ * @param paddingValues [PaddingValues] passed by `Scaffold` component of [ScreenContainer]
+ * */
 
 @Composable
 fun HomeScreen(
@@ -79,18 +86,30 @@ fun HomeScreen(
     }
 }
 
+/**
+ * [IconButton] defines how every individual item of navigation rail will look.
+ *
+ * @param onClick function to select and navigate to a navigation rail screen.
+ * @param isSelected tells whether a screen is currently selected or not.
+ * @param item [NavigationRailItems] type object.
+ * */
+
 @Composable
 fun IconButton(
     onClick : (NavigationRailItems) -> Unit,
     isSelected: Boolean,
     item: NavigationRailItems
 ){
+    // animation to change shape of navigation rail item
+    // when it is selected.
     val shapeAnimation by animateIntAsState(
         if(isSelected) 25 else 50,
         label = "navigation_rail_icon",
         animationSpec = tween(500)
     )
 
+    // animation to change color of navigation rail item
+    // when it is selected.
     val colorAnimation by animateColorAsState(
         if(isSelected) Color(0xFF5865F2) else Color.White,
         label = "navigation_rail_icon_color",

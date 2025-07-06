@@ -5,7 +5,6 @@ package com.example.quickcast.ui.screen_container
  import android.content.Intent
  import android.net.Uri
  import android.provider.Settings
- import android.util.Log
  import androidx.activity.compose.rememberLauncherForActivityResult
  import androidx.activity.result.contract.ActivityResultContracts
  import androidx.compose.animation.AnimatedContent
@@ -13,24 +12,35 @@ package com.example.quickcast.ui.screen_container
  import androidx.compose.animation.core.tween
  import androidx.compose.animation.fadeIn
  import androidx.compose.animation.fadeOut
+ import androidx.compose.animation.slideInHorizontally
  import androidx.compose.animation.slideInVertically
  import androidx.compose.animation.slideOutVertically
  import androidx.compose.animation.togetherWith
  import androidx.compose.foundation.layout.Box
+ import androidx.compose.foundation.layout.Row
  import androidx.compose.foundation.layout.Spacer
  import androidx.compose.foundation.layout.fillMaxWidth
  import androidx.compose.foundation.layout.height
  import androidx.compose.foundation.layout.navigationBarsPadding
  import androidx.compose.foundation.layout.padding
+ import androidx.compose.foundation.layout.size
  import androidx.compose.foundation.layout.systemBarsPadding
  import androidx.compose.material.icons.Icons
  import androidx.compose.material.icons.automirrored.filled.ArrowForward
  import androidx.compose.material.icons.filled.Add
  import androidx.compose.material.icons.filled.Check
+ import androidx.compose.material3.Card
+ import androidx.compose.material3.CardColors
+ import androidx.compose.material3.CardDefaults
+ import androidx.compose.material3.CardElevation
  import androidx.compose.material3.FabPosition
  import androidx.compose.material3.FloatingActionButton
  import androidx.compose.material3.Icon
  import androidx.compose.material3.Scaffold
+ import androidx.compose.material3.SnackbarHost
+ import androidx.compose.material3.SnackbarHostState
+ import androidx.compose.material3.SnackbarVisuals
+ import androidx.compose.material3.Text
  import androidx.compose.runtime.Composable
  import androidx.compose.runtime.LaunchedEffect
  import androidx.compose.runtime.derivedStateOf
@@ -38,8 +48,11 @@ package com.example.quickcast.ui.screen_container
  import androidx.compose.runtime.mutableStateListOf
  import androidx.compose.runtime.mutableStateOf
  import androidx.compose.runtime.remember
+ import androidx.compose.runtime.rememberCoroutineScope
  import androidx.compose.runtime.setValue
+ import androidx.compose.ui.Alignment
  import androidx.compose.ui.Modifier
+ import androidx.compose.ui.graphics.Color
  import androidx.compose.ui.graphics.vector.ImageVector
  import androidx.compose.ui.platform.LocalContext
  import androidx.compose.ui.tooling.preview.Devices
@@ -53,9 +66,13 @@ package com.example.quickcast.ui.screen_container
  import com.example.quickcast.enum_classes.NeededPermissions
  import com.example.quickcast.enum_classes.OtherScreens
  import com.example.quickcast.services.PermissionService
- import com.example.quickcast.ui.dialogs.PermissionAlertDialog
+ import com.example.quickcast.ui.temporary_components.CheckmarkCircle
+ import com.example.quickcast.ui.temporary_components.PermissionAlertDialog
+ import com.example.quickcast.ui.temporary_components.SnackBarCustom
  import com.example.quickcast.ui.theme.QuickCastTheme
  import com.example.quickcast.viewModels.HomeVM
+ import kotlinx.coroutines.delay
+ import kotlinx.coroutines.launch
  import org.koin.androidx.compose.koinViewModel
 
 @Preview(showBackground = true, showSystemUi = true, device = Devices.PIXEL_7)
@@ -78,11 +95,17 @@ fun ScreenContainer(){
     val navController  = rememberNavController()
     val context = LocalContext.current
 
+    //viewModel inserted with DI.
+    val homeVM : HomeVM = koinViewModel()
+
     //for controlling the color of bottom navigation items based on which is currently selected
     var currentScreen by remember{ mutableStateOf(BottomNavigationItems.Home) }
 
     //for controlling the icon displayed inside fab and animation for bottom bar to make it visible/invisible
     val currentBackStackEntry by navController.currentBackStackEntryAsState()
+
+    // required for showing snack bar messages
+    val snackBarHostState = remember { SnackbarHostState() }
 
     //decides icon for fab based on current page address
     val fabIcon by remember {
@@ -112,9 +135,6 @@ fun ScreenContainer(){
             }
         }
     )
-
-    //viewModel inserted with DI.
-    val homeVM : HomeVM = koinViewModel()
 
     // displaying custom alert dialog if permission(s) is/are denied.
     permissionDialogEntries.forEach {
@@ -203,13 +223,24 @@ fun ScreenContainer(){
             }
         },
 
-        floatingActionButtonPosition = FabPosition.End
+        floatingActionButtonPosition = FabPosition.End,
+
+        snackbarHost = { SnackbarHost(snackBarHostState){
+            SnackBarCustom(it)
+        } }
 
     ) { paddingValues ->
 
         // asks for permission only once avoiding infinite recompositions.
         LaunchedEffect(Unit) {
             permissionLauncher.launch(PermissionService().getPermissionArray().toTypedArray())
+        }
+
+        // showing snack bar if there is valid value of it
+        LaunchedEffect(homeVM.snackBarMessage.value) {
+            if(homeVM.snackBarMessage.value != ""){
+                snackBarHostState.showSnackbar(homeVM.snackBarMessage.value)
+            }
         }
 
         PrimaryNavigation(paddingValues, navController, homeVM)

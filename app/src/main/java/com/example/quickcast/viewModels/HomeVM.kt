@@ -32,6 +32,10 @@ class HomeVM : ViewModel() {
     private val _isSmsProcessActive = mutableStateOf(false)
     val isSmsProcessActive : State<Boolean> = _isSmsProcessActive
 
+    // variable containing snack bar message that needs to be displayed if any
+    private val _snackBarMessage = mutableStateOf("")
+    val snackBarMessage : State<String> = _snackBarMessage
+
     /**[selectContact] invoked when an unselected contact is selected.*/
     fun selectContact(c : SelectedContacts){
         _selectedContacts.add(_selectedContacts.indexOf(SelectedContacts()), c)
@@ -112,6 +116,9 @@ class HomeVM : ViewModel() {
         // controls animation between circularProgressIndicator and content
         // on AddSiteScreenSecond
         _isSmsProcessActive.value = false
+
+        // showing snack bar message to user
+        _snackBarMessage.value = "Invite sent successfully."
 
     }
 

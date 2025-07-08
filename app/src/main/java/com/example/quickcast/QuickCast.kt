@@ -1,6 +1,7 @@
 package com.example.quickcast
 
 import android.app.Application
+import com.example.quickcast.services.NotificationService
 import com.example.quickcast.viewModels.HomeVM
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
@@ -10,6 +11,8 @@ import org.koin.dsl.module
 class QuickCast : Application() {
     override fun onCreate() {
         super.onCreate()
+
+        NotificationService().createNotificationChannel(this)
 
         startKoin {
             androidContext(this@QuickCast)

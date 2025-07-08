@@ -1,5 +1,7 @@
 package com.example.quickcast.enum_classes
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 
 
 /**
@@ -38,6 +40,14 @@ enum class NeededPermissions(
     title = "Send SMS Permission",
     description = "This permission is needed to send SMS through your phone. Please grant the permission.",
     permanentlyDeniedDescription = "This permission is needed to send SMS through your phone. Please grant the permission in app settings."
+    ),
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    POST_NOTIFICATIONS(
+        permission = android.Manifest.permission.POST_NOTIFICATIONS,
+        title = "Post notifications",
+        description = "This permission is needed to post notifications on your device. Please grant the permission.",
+        permanentlyDeniedDescription = "This permission is needed to post notifications on your device. Please grant the permission in app settings."
     );
 
 

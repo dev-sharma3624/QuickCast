@@ -1,5 +1,6 @@
 package com.example.quickcast.SmsUtils
 
+import android.Manifest
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -7,7 +8,10 @@ import android.os.Build
 import android.provider.Telephony
 import android.telephony.SmsMessage
 import android.util.Log
+import androidx.annotation.RequiresPermission
 import com.example.quickcast.data_classes.SmsFormats.SmsPackage
+import com.example.quickcast.enum_classes.SmsTypes
+import com.example.quickcast.services.NotificationService
 import com.google.gson.Gson
 
 /**
@@ -16,6 +20,8 @@ import com.google.gson.Gson
  * */
 
 class SmsReceiver : BroadcastReceiver() {
+
+    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     override fun onReceive(context: Context, intent: Intent) {
         val gson = Gson()
         Log.d("SmsReciever", "🔔 Receiver triggered")
@@ -64,6 +70,9 @@ class SmsReceiver : BroadcastReceiver() {
                             val jsonMsg = gson.fromJson(sms.messageBody, SmsPackage::class.java)
                             Log.d("SmsReceiver", "received : $jsonMsg")
 
+                            decideSuitableAction(jsonMsg, context)
+
+
                         } catch (e: Exception) {
                             Log.e("SmsReceiver", "❌ Error parsing SMS: ${e.message}")
                         }
@@ -74,4 +83,40 @@ class SmsReceiver : BroadcastReceiver() {
             }
         }
     }
+
+    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
+    private fun decideSuitableAction(receivedMsg : SmsPackage, context: Context){
+
+        when(receivedMsg.type){
+            SmsTypes.SITE_INVITE -> {
+                NotificationService().showSimpleNotification(context)
+            }
+        }
+
+
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

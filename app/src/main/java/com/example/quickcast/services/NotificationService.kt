@@ -3,6 +3,7 @@ package com.example.quickcast.services
 import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresPermission
@@ -44,16 +45,28 @@ class NotificationService {
 
 
 
+    /**
+     * [showSimpleNotification] creates a notification and then shows it over a notification channel.
+     *
+     * @param context required for notification builder, notification manager.
+     * @param msg the notification message to displayed in the notification.
+     * @param pendingIntent a nullable type [PendingIntent] that will be launched when the user taps on notification.
+     * It needs to be nullable in case if the app is already in foreground then in that case we don't want any action to
+     * be performed when the user taps on notification.
+     * */
+
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     fun showSimpleNotification(
-        context: Context
+        context: Context,
+        msg : String,
+        pendingIntent: PendingIntent?
     ) {
         val builder = NotificationCompat.Builder(context, channelId)
             .setSmallIcon(R.drawable.ic_launcher_foreground) // must be a valid icon
-            .setContentTitle("QuickCast")
-            .setContentText("Your message was sent successfully!")
+            .setContentText(msg)
             .setAutoCancel(true)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setContentIntent(pendingIntent)
 
         val notificationManager = NotificationManagerCompat.from(context)
 

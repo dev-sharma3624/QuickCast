@@ -1,6 +1,7 @@
 package com.example.quickcast.SmsUtils
 
 import android.Manifest
+import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -9,6 +10,9 @@ import android.provider.Telephony
 import android.telephony.SmsMessage
 import android.util.Log
 import androidx.annotation.RequiresPermission
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ProcessLifecycleOwner
+import com.example.quickcast.MainActivity
 import com.example.quickcast.data_classes.SmsFormats.SmsPackage
 import com.example.quickcast.enum_classes.SmsTypes
 import com.example.quickcast.services.NotificationService
@@ -84,16 +88,85 @@ class SmsReceiver : BroadcastReceiver() {
         }
     }
 
+    /**
+     * [decideSuitableAction] function to decide the suitable action based on the type of message.
+     * */
+
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     private fun decideSuitableAction(receivedMsg : SmsPackage, context: Context){
 
         when(receivedMsg.type){
+
+            SmsTypes.SITE_INVITE -> siteInviteProcess(context)
+        }
+
+
+    }
+
+    /**
+     * [createPendingIntent] creates a [PendingIntent] to be passed to notification which will launched when the user
+     * taps on notification.
+     * */
+
+    private fun createPendingIntent(context: Context, smsTypes: SmsTypes) : PendingIntent {
+        val intent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
+        }
+
+        when(smsTypes){
             SmsTypes.SITE_INVITE -> {
-                NotificationService().showSimpleNotification(context)
+                intent.putExtra(smsTypes.name, true)
             }
         }
 
 
+        val pendingIntent = PendingIntent.getActivity(
+            context,
+            0,
+            intent,
+            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+        )
+
+        return pendingIntent
+
+    }
+
+    /**
+     *[siteInviteProcess] defines the process that needs to executed when the type of message received is a
+     * [SmsTypes.SITE_INVITE]. It includes:
+     *
+     * -> showing a notification either with a null pending intent or a non-null pending intent based on whether
+     * the app is currently in foreground or background respectively.
+     * */
+
+    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
+    private fun siteInviteProcess(context : Context){
+
+        // checks whether app is in foreground or not
+        val isAppInForeground = ProcessLifecycleOwner.get().lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+
+        if(isAppInForeground){
+            // launches an intent that will be received by onNewIntent function in MainActivity
+            val intent = Intent(context, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                        Intent.FLAG_ACTIVITY_CLEAR_TOP or
+                        Intent.FLAG_ACTIVITY_SINGLE_TOP
+                putExtra(SmsTypes.SITE_INVITE.name, true)
+            }
+            context.startActivity(intent)
+
+        }
+
+        NotificationService().showSimpleNotification(
+            context = context,
+            msg = "You have received a new site invitation.",
+            pendingIntent = if(!isAppInForeground){ // if (app in foreground) pendingIntent else null
+                createPendingIntent(
+                    context = context,
+                    smsTypes = SmsTypes.SITE_INVITE
+                )
+            } else null
+        )
     }
 }
 

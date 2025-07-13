@@ -12,35 +12,29 @@ package com.example.quickcast.ui.screen_container
  import androidx.compose.animation.core.tween
  import androidx.compose.animation.fadeIn
  import androidx.compose.animation.fadeOut
- import androidx.compose.animation.slideInHorizontally
  import androidx.compose.animation.slideInVertically
  import androidx.compose.animation.slideOutVertically
  import androidx.compose.animation.togetherWith
  import androidx.compose.foundation.layout.Box
- import androidx.compose.foundation.layout.Row
  import androidx.compose.foundation.layout.Spacer
  import androidx.compose.foundation.layout.fillMaxWidth
  import androidx.compose.foundation.layout.height
  import androidx.compose.foundation.layout.navigationBarsPadding
  import androidx.compose.foundation.layout.padding
- import androidx.compose.foundation.layout.size
  import androidx.compose.foundation.layout.systemBarsPadding
  import androidx.compose.material.icons.Icons
  import androidx.compose.material.icons.automirrored.filled.ArrowForward
  import androidx.compose.material.icons.filled.Add
  import androidx.compose.material.icons.filled.Check
- import androidx.compose.material3.Card
- import androidx.compose.material3.CardColors
- import androidx.compose.material3.CardDefaults
- import androidx.compose.material3.CardElevation
+ import androidx.compose.material3.ExperimentalMaterial3Api
  import androidx.compose.material3.FabPosition
  import androidx.compose.material3.FloatingActionButton
  import androidx.compose.material3.Icon
+ import androidx.compose.material3.ModalBottomSheet
  import androidx.compose.material3.Scaffold
  import androidx.compose.material3.SnackbarHost
  import androidx.compose.material3.SnackbarHostState
- import androidx.compose.material3.SnackbarVisuals
- import androidx.compose.material3.Text
+ import androidx.compose.material3.rememberModalBottomSheetState
  import androidx.compose.runtime.Composable
  import androidx.compose.runtime.LaunchedEffect
  import androidx.compose.runtime.derivedStateOf
@@ -48,11 +42,9 @@ package com.example.quickcast.ui.screen_container
  import androidx.compose.runtime.mutableStateListOf
  import androidx.compose.runtime.mutableStateOf
  import androidx.compose.runtime.remember
- import androidx.compose.runtime.rememberCoroutineScope
  import androidx.compose.runtime.setValue
- import androidx.compose.ui.Alignment
+ import androidx.compose.runtime.withFrameNanos
  import androidx.compose.ui.Modifier
- import androidx.compose.ui.graphics.Color
  import androidx.compose.ui.graphics.vector.ImageVector
  import androidx.compose.ui.platform.LocalContext
  import androidx.compose.ui.tooling.preview.Devices
@@ -61,42 +53,30 @@ package com.example.quickcast.ui.screen_container
  import androidx.core.app.ActivityCompat
  import androidx.navigation.compose.currentBackStackEntryAsState
  import androidx.navigation.compose.rememberNavController
+ import com.example.quickcast.BlankScreen
  import com.example.quickcast.PrimaryNavigation
  import com.example.quickcast.enum_classes.BottomNavigationItems
  import com.example.quickcast.enum_classes.NeededPermissions
  import com.example.quickcast.enum_classes.OtherScreens
  import com.example.quickcast.services.PermissionService
- import com.example.quickcast.ui.temporary_components.CheckmarkCircle
  import com.example.quickcast.ui.temporary_components.PermissionAlertDialog
  import com.example.quickcast.ui.temporary_components.SnackBarCustom
  import com.example.quickcast.ui.theme.QuickCastTheme
  import com.example.quickcast.viewModels.HomeVM
  import kotlinx.coroutines.delay
- import kotlinx.coroutines.launch
  import org.koin.androidx.compose.koinViewModel
-
-@Preview(showBackground = true, showSystemUi = true, device = Devices.PIXEL_7)
-@Composable
-fun ScreenContainerPreview(){
-    QuickCastTheme {
-        ScreenContainer()
-    }
-}
-
 
 /**
  * [ScreenContainer] parent container of the whole application that contains
  * scaffold layout and calls navigation component.
  * */
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ScreenContainer(){
+fun ScreenContainer(homeVM: HomeVM) {
 
     val navController  = rememberNavController()
     val context = LocalContext.current
-
-    //viewModel inserted with DI.
-    val homeVM : HomeVM = koinViewModel()
 
     //for controlling the color of bottom navigation items based on which is currently selected
     var currentScreen by remember{ mutableStateOf(BottomNavigationItems.Home) }
@@ -160,6 +140,12 @@ fun ScreenContainer(){
             onDismissRequest = {permissionDialogEntries.remove(it)}
         )
     }
+
+    // bottom sheet state to be used by bottom sheet layout that shows site invites
+    val sheetState = rememberModalBottomSheetState(
+        skipPartiallyExpanded = false
+    )
+
 
     Scaffold(
         modifier = Modifier.navigationBarsPadding()
@@ -243,10 +229,43 @@ fun ScreenContainer(){
             }
         }
 
+        // if the app is in background or is not active and the user taps on notification
+        // isBottomSheetActive will be toggled to true value.
+        LaunchedEffect(Unit) {
+            if(homeVM.isBottomSheetActive.value){
+                withFrameNanos { }      // suspends coroutine till app is drawn
+                delay(2000)    // adds a little delay for smooth bottom sheet animation
+                sheetState.show()       // shows bottom sheet
+            }
+        }
+
+        // when the bottom sheet is dismissed
+        LaunchedEffect(homeVM.isBottomSheetActive.value) {
+            if(!homeVM.isBottomSheetActive.value){
+                sheetState.hide()
+            }
+        }
+
         PrimaryNavigation(paddingValues, navController, homeVM)
 
+        // displaying bottom sheet
+        if (homeVM.isBottomSheetActive.value){
+
+            ModalBottomSheet(
+                sheetState = sheetState,
+                onDismissRequest = { homeVM.isBottomSheetActive.value = false },
+                dragHandle = {}
+            ) {
+                BlankScreen("Bottom Sheet")
+            }
+
+        }
+
     }
+
 }
+
+
 
 /**
  * [Fab] defines how the fab button will look. It also contains animation to change the icon

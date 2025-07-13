@@ -60,6 +60,7 @@ package com.example.quickcast.ui.screen_container
  import com.example.quickcast.enum_classes.OtherScreens
  import com.example.quickcast.services.PermissionService
  import com.example.quickcast.ui.temporary_components.PermissionAlertDialog
+ import com.example.quickcast.ui.temporary_components.SiteInviteBottomSheet
  import com.example.quickcast.ui.temporary_components.SnackBarCustom
  import com.example.quickcast.ui.theme.QuickCastTheme
  import com.example.quickcast.viewModels.HomeVM
@@ -256,7 +257,7 @@ fun ScreenContainer(homeVM: HomeVM) {
                 onDismissRequest = { homeVM.isBottomSheetActive.value = false },
                 dragHandle = {}
             ) {
-                BlankScreen("Bottom Sheet")
+                SiteInviteBottomSheet()
             }
 
         }

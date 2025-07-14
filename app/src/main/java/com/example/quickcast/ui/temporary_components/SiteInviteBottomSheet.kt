@@ -16,6 +16,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -25,28 +26,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.quickcast.R
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview(showBackground = true)
-@Composable
-fun SiteInviteBottomSheetPreview(){
-    Column(
-        modifier = Modifier.fillMaxSize()
-            .background(Color.Gray)
-    ) {
-        ModalBottomSheet(
-            sheetState = rememberModalBottomSheetState(),
-            onDismissRequest = {},
-            dragHandle = {}
-        ) {
-            SiteInviteBottomSheet()
-        }
-
-    }
-}
+import com.example.quickcast.data_classes.SmsFormats.SiteInvite
 
 @Composable
-fun SiteInviteBottomSheet(){
+fun SiteInviteBottomSheet(
+    onClickAccept: () -> Unit,
+    onClickReject: () -> Unit,
+    siteInvite: MutableState<SiteInvite?>
+) {
 
     val internalComponentPadding = Modifier.padding(vertical = 4.dp)
 
@@ -70,13 +57,13 @@ fun SiteInviteBottomSheet(){
         }
 
         Text(
-            text = "Group name",
+            text = siteInvite.value?.n ?: "Group name",
             fontWeight = FontWeight.Bold,
             modifier = internalComponentPadding
         )
 
         Text(
-            text = "XX members",
+            text = "${siteInvite.value?.l?.size ?: "__"} members",
             color = Color.DarkGray,
             modifier = internalComponentPadding
         )
@@ -89,7 +76,7 @@ fun SiteInviteBottomSheet(){
         Spacer(Modifier.padding(vertical = 16.dp))
 
         OutlinedButton(
-            onClick = {},
+            onClick = {onClickAccept()},
             modifier = internalComponentPadding
                 .fillMaxWidth(0.8f)
         ) {
@@ -97,7 +84,7 @@ fun SiteInviteBottomSheet(){
         }
 
         OutlinedButton(
-            onClick = {},
+            onClick = {onClickReject()},
             modifier = internalComponentPadding
                 .fillMaxWidth(0.8f)
         ) {

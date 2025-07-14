@@ -28,12 +28,14 @@ import com.google.gson.GsonBuilder
 
 class SmsReceiver : BroadcastReceiver() {
 
+    private val gson = GsonBuilder()
+        .registerTypeAdapter(SmsPackage::class.java, SmsPackageDeserializer())
+        .registerTypeAdapter(SmsPackage::class.java, SmsPackageDeserializer())
+        .create()
+
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     override fun onReceive(context: Context, intent: Intent) {
-        val gson = GsonBuilder()
-            .registerTypeAdapter(SmsPackage::class.java, SmsPackageDeserializer())
-            .registerTypeAdapter(SmsPackage::class.java, SmsPackageDeserializer())
-            .create()
+
 
         Log.d("SmsReciever", "🔔 Receiver triggered")
 
@@ -102,9 +104,9 @@ class SmsReceiver : BroadcastReceiver() {
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     private fun decideSuitableAction(receivedMsg : SmsPackage, context: Context){
 
-        when(receivedMsg.type){
+        when(receivedMsg.message){
 
-            SmsTypes.SITE_INVITE -> siteInviteProcess(context)
+            is SiteInvite -> siteInviteProcess(context, receivedMsg.message)
         }
 
 
@@ -115,14 +117,17 @@ class SmsReceiver : BroadcastReceiver() {
      * taps on notification.
      * */
 
-    private fun createPendingIntent(context: Context, smsTypes: SmsTypes) : PendingIntent {
+    private fun createPendingIntent(context: Context, smsTypes: SmsTypes, siteInvite: SiteInvite) : PendingIntent {
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
         }
 
         when(smsTypes){
             SmsTypes.SITE_INVITE -> {
-                intent.putExtra(smsTypes.name, true)
+                intent.apply {
+                    putExtra(smsTypes.name, true)
+                    putExtra("Msg_Body", gson.toJson(siteInvite))
+                }
             }
         }
 
@@ -147,7 +152,7 @@ class SmsReceiver : BroadcastReceiver() {
      * */
 
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
-    private fun siteInviteProcess(context : Context){
+    private fun siteInviteProcess(context: Context, siteInvite: SiteInvite){
 
         // checks whether app is in foreground or not
         val isAppInForeground = ProcessLifecycleOwner.get().lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
@@ -159,6 +164,7 @@ class SmsReceiver : BroadcastReceiver() {
                         Intent.FLAG_ACTIVITY_CLEAR_TOP or
                         Intent.FLAG_ACTIVITY_SINGLE_TOP
                 putExtra(SmsTypes.SITE_INVITE.name, true)
+                putExtra("Msg_Body", gson.toJson(siteInvite))
             }
             context.startActivity(intent)
 
@@ -170,7 +176,8 @@ class SmsReceiver : BroadcastReceiver() {
             pendingIntent = if(!isAppInForeground){ // if (app in foreground) pendingIntent else null
                 createPendingIntent(
                     context = context,
-                    smsTypes = SmsTypes.SITE_INVITE
+                    smsTypes = SmsTypes.SITE_INVITE,
+                    siteInvite = siteInvite
                 )
             } else null
         )

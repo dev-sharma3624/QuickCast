@@ -15,11 +15,17 @@ import com.example.quickcast.data_classes.SelectedContacts
 import com.example.quickcast.data_classes.SmsFormats.SiteInvite
 import com.example.quickcast.data_classes.SmsFormats.SmsPackage
 import com.example.quickcast.enum_classes.SmsTypes
+import com.example.quickcast.room_db.dao.MessageDao
+import com.example.quickcast.room_db.dao.SiteDao
+import com.example.quickcast.room_db.entities.Site
 import com.google.gson.Gson
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class HomeVM : ViewModel() {
+class HomeVM(
+    private val siteDao: SiteDao,
+    private val messageDao: MessageDao
+) : ViewModel() {
     // list of contacts selected for creation of a new site/group
     private val _selectedContacts = mutableStateListOf(SelectedContacts())
     val selectedContacts : List<SelectedContacts> = _selectedContacts
@@ -38,6 +44,8 @@ class HomeVM : ViewModel() {
     // variable containing snack bar message that needs to be displayed if any
     private val _snackBarMessage = mutableStateOf("")
     val snackBarMessage : State<String> = _snackBarMessage
+
+    val siteInviteObject = mutableStateOf<SiteInvite?>(null)
 
     /**[selectContact] invoked when an unselected contact is selected.*/
     fun selectContact(c : SelectedContacts){
@@ -152,5 +160,19 @@ class HomeVM : ViewModel() {
     /** [setIsSmsProcessActive] animates AddSiteScreenSecond from content to CircularProgressIndicator*/
     fun setIsSmsProcessActive() {
         _isSmsProcessActive.value = true
+    }
+
+    fun acceptInvitation() {
+        viewModelScope.launch {
+            siteInviteObject.value?.let {
+                siteDao.insert(
+                    Site(
+                        name = it.n,
+                        contactsList = it.l ?: emptyList()
+                    )
+                )
+            }
+            isBottomSheetActive.value = false
+        }
     }
 }

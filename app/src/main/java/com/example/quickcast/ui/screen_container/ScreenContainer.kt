@@ -42,18 +42,16 @@ package com.example.quickcast.ui.screen_container
  import androidx.compose.runtime.mutableStateListOf
  import androidx.compose.runtime.mutableStateOf
  import androidx.compose.runtime.remember
+ import androidx.compose.runtime.rememberCoroutineScope
  import androidx.compose.runtime.setValue
  import androidx.compose.runtime.withFrameNanos
  import androidx.compose.ui.Modifier
  import androidx.compose.ui.graphics.vector.ImageVector
  import androidx.compose.ui.platform.LocalContext
- import androidx.compose.ui.tooling.preview.Devices
- import androidx.compose.ui.tooling.preview.Preview
  import androidx.compose.ui.unit.dp
  import androidx.core.app.ActivityCompat
  import androidx.navigation.compose.currentBackStackEntryAsState
  import androidx.navigation.compose.rememberNavController
- import com.example.quickcast.BlankScreen
  import com.example.quickcast.PrimaryNavigation
  import com.example.quickcast.enum_classes.BottomNavigationItems
  import com.example.quickcast.enum_classes.NeededPermissions
@@ -62,10 +60,9 @@ package com.example.quickcast.ui.screen_container
  import com.example.quickcast.ui.temporary_components.PermissionAlertDialog
  import com.example.quickcast.ui.temporary_components.SiteInviteBottomSheet
  import com.example.quickcast.ui.temporary_components.SnackBarCustom
- import com.example.quickcast.ui.theme.QuickCastTheme
  import com.example.quickcast.viewModels.HomeVM
  import kotlinx.coroutines.delay
- import org.koin.androidx.compose.koinViewModel
+ import kotlinx.coroutines.launch
 
 /**
  * [ScreenContainer] parent container of the whole application that contains
@@ -147,9 +144,17 @@ fun ScreenContainer(homeVM: HomeVM) {
         skipPartiallyExpanded = false
     )
 
+    val sheetStateVisibility = remember {
+        derivedStateOf { sheetState.isVisible }
+    }
+
+    var showBottomSheet by remember { mutableStateOf(false) }
+
+
 
     Scaffold(
-        modifier = Modifier.navigationBarsPadding()
+        modifier = Modifier
+            .navigationBarsPadding()
             .systemBarsPadding(),
 
         bottomBar = {
@@ -174,7 +179,9 @@ fun ScreenContainer(homeVM: HomeVM) {
         },
 
         topBar = {
-            Spacer(Modifier.fillMaxWidth().height(16.dp))
+            Spacer(Modifier
+                .fillMaxWidth()
+                .height(16.dp))
         },
 
         floatingActionButton = {
@@ -236,6 +243,7 @@ fun ScreenContainer(homeVM: HomeVM) {
             if(homeVM.isBottomSheetActive.value){
                 withFrameNanos { }      // suspends coroutine till app is drawn
                 delay(2000)    // adds a little delay for smooth bottom sheet animation
+                showBottomSheet = true
                 sheetState.show()       // shows bottom sheet
             }
         }
@@ -243,21 +251,31 @@ fun ScreenContainer(homeVM: HomeVM) {
         // when the bottom sheet is dismissed
         LaunchedEffect(homeVM.isBottomSheetActive.value) {
             if(!homeVM.isBottomSheetActive.value){
-                sheetState.hide()
+                launch {
+                    sheetState.hide()
+                }.invokeOnCompletion {
+                    showBottomSheet = false
+                }
+            }else{
+                showBottomSheet = true
             }
         }
 
         PrimaryNavigation(paddingValues, navController, homeVM)
 
         // displaying bottom sheet
-        if (homeVM.isBottomSheetActive.value){
+        if (showBottomSheet){
 
             ModalBottomSheet(
                 sheetState = sheetState,
                 onDismissRequest = { homeVM.isBottomSheetActive.value = false },
                 dragHandle = {}
             ) {
-                SiteInviteBottomSheet()
+                SiteInviteBottomSheet(
+                    siteInvite = homeVM.siteInviteObject,
+                    onClickAccept = { homeVM.acceptInvitation() },
+                    onClickReject = {}
+                )
             }
 
         }

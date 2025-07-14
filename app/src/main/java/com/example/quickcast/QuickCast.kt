@@ -39,7 +39,7 @@ class QuickCast : Application() {
             androidContext(this@QuickCast)
             modules(
                 databaseModule,
-                module { viewModel { HomeVM(get(), get()) } }
+                module { viewModel { HomeVM() } }
             )
         }
 

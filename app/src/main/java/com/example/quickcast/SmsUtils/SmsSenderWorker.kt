@@ -7,12 +7,9 @@ import android.telephony.SmsManager
 import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.example.quickcast.data_classes.SmsFormats.SiteInvite
 import com.example.quickcast.data_classes.SmsFormats.SmsPackage
-import com.example.quickcast.enum_classes.SmsTypes
 import com.google.gson.reflect.TypeToken
 import com.google.gson.Gson
-import kotlinx.coroutines.delay
 
 
 /**

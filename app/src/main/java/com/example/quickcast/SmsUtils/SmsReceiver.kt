@@ -13,10 +13,13 @@ import androidx.annotation.RequiresPermission
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ProcessLifecycleOwner
 import com.example.quickcast.MainActivity
+import com.example.quickcast.data_classes.SmsFormats.SiteInvite
 import com.example.quickcast.data_classes.SmsFormats.SmsPackage
 import com.example.quickcast.enum_classes.SmsTypes
+import com.example.quickcast.room_db.entities.Site
 import com.example.quickcast.services.NotificationService
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 
 /**
  * [SmsReceiver] is a broadcast receiver which reads incoming messages which we can process
@@ -27,7 +30,11 @@ class SmsReceiver : BroadcastReceiver() {
 
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     override fun onReceive(context: Context, intent: Intent) {
-        val gson = Gson()
+        val gson = GsonBuilder()
+            .registerTypeAdapter(SmsPackage::class.java, SmsPackageDeserializer())
+            .registerTypeAdapter(SmsPackage::class.java, SmsPackageDeserializer())
+            .create()
+
         Log.d("SmsReciever", "🔔 Receiver triggered")
 
         //double checks the action of intent that triggered receiver.

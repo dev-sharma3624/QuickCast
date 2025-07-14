@@ -11,5 +11,5 @@ import com.example.quickcast.enum_classes.SmsTypes
 data class SmsPackage(
     val type : SmsTypes,
     val phone : String,
-    val message: Any
+    val message: MessageContent
 )

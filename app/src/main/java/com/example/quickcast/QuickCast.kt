@@ -2,6 +2,8 @@ package com.example.quickcast
 
 import android.app.Application
 import androidx.lifecycle.ProcessLifecycleOwner
+import androidx.room.Room
+import com.example.quickcast.room_db.AppDb
 import com.example.quickcast.services.NotificationService
 import com.example.quickcast.viewModels.HomeVM
 import org.koin.android.ext.koin.androidContext
@@ -18,11 +20,27 @@ class QuickCast : Application() {
 
         NotificationService().createNotificationChannel(this)
 
+        val databaseModule = module {
+
+            single {
+                Room.databaseBuilder(
+                    this@QuickCast,
+                    AppDb::class.java,
+                    "App_Db"
+                ).build()
+            }
+
+            single { get<AppDb>().siteDao() }
+            single { get<AppDb>().messageDao() }
+        }
+
+
         startKoin {
             androidContext(this@QuickCast)
-            modules(module {
-                viewModel { HomeVM() }
-            })
+            modules(
+                databaseModule,
+                module { viewModel { HomeVM(get(), get()) } }
+            )
         }
 
     }

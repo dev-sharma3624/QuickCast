@@ -20,6 +20,7 @@ import com.example.quickcast.enum_classes.BottomNavigationItems
 import com.example.quickcast.enum_classes.OtherScreens
 import com.example.quickcast.ui.screen_container.ScreenContainer
 import com.example.quickcast.ui.screens.HomeScreen
+import com.example.quickcast.ui.screens.IndividualSiteScreen
 import com.example.quickcast.ui.screens.home_sub_screens.AddSiteScreenFirst
 import com.example.quickcast.ui.screens.home_sub_screens.AddSiteScreenSecond
 import com.example.quickcast.viewModels.HomeVM
@@ -92,6 +93,10 @@ fun PrimaryNavigation(
                     homeVM.clearSiteName()
                 }
             )
+        }
+
+        composable(route = OtherScreens.INDIVIDUAL_SITE.name){
+            IndividualSiteScreen()
         }
     }
 }

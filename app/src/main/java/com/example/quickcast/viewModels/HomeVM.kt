@@ -21,6 +21,7 @@ import com.example.quickcast.room_db.entities.Site
 import com.google.gson.Gson
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.Calendar
 
 class HomeVM(
     private val siteDao: SiteDao,
@@ -146,6 +147,7 @@ class HomeVM(
                         type = SmsTypes.SITE_INVITE,
                         phone = it.contact.number,
                         message = SiteInvite(
+                            ts = Calendar.getInstance().timeInMillis,
                             n = siteName.value,
                             l = null
                         )
@@ -167,6 +169,7 @@ class HomeVM(
             siteInviteObject.value?.let {
                 siteDao.insert(
                     Site(
+                        id = it.ts,
                         name = it.n,
                         contactsList = it.l ?: emptyList()
                     )

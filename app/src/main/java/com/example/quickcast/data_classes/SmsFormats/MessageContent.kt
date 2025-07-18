@@ -24,5 +24,6 @@ sealed class MessageContent : Parcelable
 @Parcelize
 data class SiteInvite (
     val n : String, //site name
-    val l : List<String>? //list of all other contacts
+    val l : List<String>?, //list of all other contacts
+    val ts : Long
 ) : MessageContent()

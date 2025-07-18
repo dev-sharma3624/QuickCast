@@ -2,6 +2,7 @@ package com.example.quickcast.ui.screens.home_sub_screens
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,6 +21,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import com.example.quickcast.ui.screens.IndividualSiteScreen
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -29,10 +31,13 @@ import com.example.quickcast.R
 /**
  * [SiteScreen] defines how the Site Screen which is a sub-screen of home screen accessed
  * by navigation rail will be displayed.
+ * @param onClickSite lambda function used for navigating to [IndividualSiteScreen].
  * */
 
 @Composable
-fun SiteScreen(){
+fun SiteScreen(
+    onClickSite: () -> Unit
+){
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -45,7 +50,9 @@ fun SiteScreen(){
 
         LazyColumn{
             items(3){
-                Site()
+                Site(
+                    onClickSite = { onClickSite() }
+                )
             }
         }
     }
@@ -53,13 +60,19 @@ fun SiteScreen(){
 
 /**
  * [Site] defines how each Site element in the Sites list will look.
+ * @param onClickSite lambda function used for navigating to [IndividualSiteScreen].
  * */
 @Composable
-fun Site() {
+fun Site(
+    onClickSite : () -> Unit
+) {
     Row(
         modifier = Modifier
             .padding(vertical = 8.dp)
-            .fillMaxWidth(),
+            .fillMaxWidth()
+            .clickable {
+                onClickSite()
+            },
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
         // dp of the group/site

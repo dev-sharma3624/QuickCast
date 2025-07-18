@@ -45,7 +45,7 @@ fun IndividualSiteScreen(){
         LazyColumn {
             items(count = 5){
                 SentUpdate(
-                    design = sentByOthersShape
+                    design = sentByMeShape
                 )
             }
         }

@@ -29,6 +29,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.quickcast.BlankScreen
 import com.example.quickcast.enum_classes.NavigationRailItems
+import com.example.quickcast.enum_classes.OtherScreens
 import com.example.quickcast.ui.screens.home_sub_screens.SiteScreen
 import com.example.quickcast.ui.screen_container.ScreenContainer
 
@@ -75,7 +76,9 @@ fun HomeScreen(
         ) {
             when(selectedNavigationRailItem){
 
-                NavigationRailItems.SITES -> SiteScreen()
+                NavigationRailItems.SITES -> SiteScreen(
+                    onClickSite = {navHostController.navigate(OtherScreens.INDIVIDUAL_SITE.name)}
+                )
 
                 NavigationRailItems.COMPARISON -> BlankScreen("Comparison")
 

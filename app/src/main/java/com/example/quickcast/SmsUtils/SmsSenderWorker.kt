@@ -10,6 +10,7 @@ import androidx.work.WorkerParameters
 import com.example.quickcast.data_classes.SmsFormats.SmsPackage
 import com.google.gson.reflect.TypeToken
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 
 
 /**
@@ -27,7 +28,10 @@ class SmsSenderWorker(
         // fetching json-format string containing message list.
         val jsonList = inputData.getString("messageList") ?: return Result.failure()
 
-        val gson = Gson()
+        val gson = GsonBuilder()
+            .registerTypeAdapter(SmsPackage::class.java, SmsPackageDeserializer())
+            .registerTypeAdapter(SmsPackage::class.java, SmsPackageDeserializer())
+            .create()
         val type = object : TypeToken<List<SmsPackage>>() {}.type
 
         // converting json-format string back to List<SmsPackage>

@@ -13,12 +13,12 @@ import androidx.annotation.RequiresPermission
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ProcessLifecycleOwner
 import com.example.quickcast.MainActivity
+import com.example.quickcast.data_classes.SmsFormats.MessageContent
 import com.example.quickcast.data_classes.SmsFormats.SiteInvite
 import com.example.quickcast.data_classes.SmsFormats.SmsPackage
 import com.example.quickcast.enum_classes.SmsTypes
 import com.example.quickcast.room_db.entities.Site
 import com.example.quickcast.services.NotificationService
-import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 
 /**
@@ -117,7 +117,7 @@ class SmsReceiver : BroadcastReceiver() {
      * taps on notification.
      * */
 
-    private fun createPendingIntent(context: Context, smsTypes: SmsTypes, siteInvite: SiteInvite) : PendingIntent {
+    private fun createPendingIntent(context: Context, smsTypes: SmsTypes, messageContent: MessageContent) : PendingIntent {
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
         }
@@ -125,8 +125,9 @@ class SmsReceiver : BroadcastReceiver() {
         when(smsTypes){
             SmsTypes.SITE_INVITE -> {
                 intent.apply {
-                    putExtra(smsTypes.name, true)
-                    putExtra("Msg_Body", gson.toJson(siteInvite))
+                    putExtra("Msg_Object", messageContent as SiteInvite)
+                    /*putExtra(smsTypes.name, true)
+                    putExtra("Msg_Body", gson.toJson(siteInvite))*/
                 }
             }
         }
@@ -152,7 +153,7 @@ class SmsReceiver : BroadcastReceiver() {
      * */
 
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
-    private fun siteInviteProcess(context: Context, siteInvite: SiteInvite){
+    private fun siteInviteProcess(context: Context, messageContent: MessageContent){
 
         // checks whether app is in foreground or not
         val isAppInForeground = ProcessLifecycleOwner.get().lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
@@ -163,8 +164,9 @@ class SmsReceiver : BroadcastReceiver() {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or
                         Intent.FLAG_ACTIVITY_CLEAR_TOP or
                         Intent.FLAG_ACTIVITY_SINGLE_TOP
-                putExtra(SmsTypes.SITE_INVITE.name, true)
-                putExtra("Msg_Body", gson.toJson(siteInvite))
+                putExtra("Msg_Object", messageContent as SiteInvite)
+                /*putExtra(SmsTypes.SITE_INVITE.name, true)
+                putExtra("Msg_Body", gson.toJson(siteInvite))*/
             }
             context.startActivity(intent)
 
@@ -177,7 +179,7 @@ class SmsReceiver : BroadcastReceiver() {
                 createPendingIntent(
                     context = context,
                     smsTypes = SmsTypes.SITE_INVITE,
-                    siteInvite = siteInvite
+                    messageContent = messageContent
                 )
             } else null
         )

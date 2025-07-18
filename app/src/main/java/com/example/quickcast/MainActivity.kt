@@ -1,13 +1,17 @@
 package com.example.quickcast
 
 import android.content.Intent
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import com.example.quickcast.data_classes.SmsFormats.MessageContent
 import com.example.quickcast.data_classes.SmsFormats.SiteInvite
 import com.example.quickcast.enum_classes.SmsTypes
 import com.example.quickcast.ui.screen_container.ScreenContainer
@@ -28,11 +32,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // checking whether app has been launched by tapping on notification
-        val launchBottomSheet = intent?.getBooleanExtra(SmsTypes.SITE_INVITE.name, false)
-
-        val siteInviteString = intent?.getStringExtra("Msg_Body")
-        val siteInviteObject = gson.fromJson(siteInviteString, SiteInvite::class.java)
+        val intentObject: MessageContent? = createMessageContentObjectFromIntent(intent)
 
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.light(sideGrillLight.toArgb(), sideGrillLight.toArgb()),
@@ -46,13 +46,12 @@ class MainActivity : ComponentActivity() {
             //viewModel inserted with DI.
             val homeVM : HomeVM = koinViewModel()
 
-            // setting value received from intent to view model
-            homeVM.isBottomSheetActive.value = launchBottomSheet!!
-
-            homeVM.siteInviteObject.value = siteInviteObject
-
             // saving reference of viewModel
             vm = homeVM
+
+            intentObject?.let {
+                setBottomSheetStates(it)
+            }
 
             QuickCastTheme {
                 ScreenContainer(
@@ -67,16 +66,33 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
 
-        // checking the value passed by intent when the app is in foreground
-        val launchBottomSheet = intent.getBooleanExtra(SmsTypes.SITE_INVITE.name, false)
+        val intentObject: MessageContent? = createMessageContentObjectFromIntent(intent)
 
-        val siteInviteString = intent.getStringExtra("Msg_Body")
-        val siteInviteObject = gson.fromJson(siteInviteString, SiteInvite::class.java)
+        setBottomSheetStates(intentObject)
 
-        // updating the value in bottom sheet with latest value
-        vm?.isBottomSheetActive?.value = launchBottomSheet
+    }
 
-        vm?.siteInviteObject?.value = siteInviteObject
+    private fun setBottomSheetStates(intentObject : MessageContent?){
 
+        val isSiteInvite = intentObject is SiteInvite
+
+        // setting value received from intent to view model
+        if (isSiteInvite) {
+            vm?.isBottomSheetActive?.value = true
+            vm?.siteInviteObject?.value = intentObject as SiteInvite
+        } else {
+            vm?.isBottomSheetActive?.value = false
+            vm?.siteInviteObject?.value = null
+        }
+    }
+
+    private fun createMessageContentObjectFromIntent(intent : Intent?) : MessageContent?{
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+           return intent?.getParcelableExtra("Msg_Object", MessageContent::class.java)
+        } else {
+            @Suppress("DEPRECATION")
+            return intent?.getParcelableExtra("Msg_Object") as? MessageContent
+        }
     }
 }

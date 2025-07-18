@@ -268,7 +268,10 @@ fun ScreenContainer(homeVM: HomeVM) {
 
             ModalBottomSheet(
                 sheetState = sheetState,
-                onDismissRequest = { homeVM.isBottomSheetActive.value = false },
+                onDismissRequest = {
+                    homeVM.isBottomSheetActive.value = false
+                    homeVM.siteInviteObject.value = null
+                },
                 dragHandle = {}
             ) {
                 SiteInviteBottomSheet(

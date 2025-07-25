@@ -6,6 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.quickcast.room_db.dto.MessageDTO
 import com.example.quickcast.room_db.entities.Message
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface MessageDao {
@@ -17,5 +18,5 @@ interface MessageDao {
         FROM message_table
         WHERE siteId = :siteId
     """)
-    suspend fun getMessagesDTOForSite(siteId: Int): List<MessageDTO>
+    fun getMessagesDTOForSite(siteId: Int): Flow<List<MessageDTO>>
 }

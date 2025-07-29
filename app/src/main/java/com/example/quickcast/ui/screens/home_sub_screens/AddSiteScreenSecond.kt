@@ -23,7 +23,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -44,7 +44,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -64,7 +63,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.quickcast.R
 import com.example.quickcast.data_classes.MessageProperties
 import com.example.quickcast.enum_classes.MessagePropertyTypes
@@ -87,13 +88,29 @@ fun AddSiteScreenSecond(
     onBackPressed : () -> Unit
 ) {
 
+    // controls property fields animation
     val isUpdateMenuExpanded =  remember { mutableStateOf(false) }
 
+    // animation configuration for updates menu
     val periodicUpdatesAnimation by animateFloatAsState(
         targetValue = if(isUpdateMenuExpanded.value) 90f else 0f
     )
 
+    // controls animation of snack bar after invite is sent
     val isActive by viewModel.isSmsProcessActive
+
+    // number of fields in the updates menu
+    var propertyCount by remember { mutableIntStateOf(4) }
+
+    // contains the data of property fields
+    val list = remember { mutableStateListOf<MessageProperties>() }
+
+    // adds 5 empty fields to the updates menu list in starting
+    LaunchedEffect(Unit) {
+        for( i in 0..propertyCount){
+            list.add(MessageProperties(i,"", 0, MessagePropertyTypes.COUNT))
+        }
+    }
 
     // controls action of back button
     BackHandler {
@@ -239,7 +256,42 @@ fun AddSiteScreenSecond(
                     AnimatedVisibility(
                         visible = isUpdateMenuExpanded.value
                     ) {
-                        UpdatesMenu()
+                        UpdatesMenu(
+                            list = list,
+                            // updates changes made to the name of the field
+                            nameFieldChange = { id, newName ->
+                                list[id] = list[id].copy(
+                                    name = newName
+                                )
+                            },
+                            // updates changes made to the value of the field
+                            valueFieldChange = { id, newValue ->
+                                list[id] = list[id].copy(
+                                    value = if (newValue.isBlank() || newValue.isEmpty()) 0
+                                    else newValue.replace(Regex("\\D"), "").toInt()
+                                )
+                            },
+                            // updates changes made to the type of the field and sets it as Count
+                            onClickCount = { id ->
+                                list[id] = list[id].copy(
+                                    type = MessagePropertyTypes.COUNT
+                                )
+                            },
+                            // updates changes made to the type of the field and sets it as Limit
+                            onClickLimit = { id ->
+                                list[id] = list[id].copy(
+                                    type = MessagePropertyTypes.LIMIT
+                                )
+                            },
+                            // adds five more empty fields at the end of updates menu
+                            addMoreFields = {
+                                for(i in propertyCount+1 .. propertyCount+5){
+                                    list.add(MessageProperties(i,"", 0, MessagePropertyTypes.COUNT))
+                                }
+                                propertyCount += 5
+
+                            }
+                        )
                     }
                 }
             }
@@ -247,103 +299,120 @@ fun AddSiteScreenSecond(
     }
 }
 
+/**
+ * [UpdatesMenu] defines the layout of the Menu where user can set message properties to be sent and recieved.
+ *
+ * @param list the list of all message properties
+ *
+ * @param nameFieldChange makes changes to the name field of a property
+ *
+ * @param valueFieldChange makes change to the value field of a property
+ *
+ * @param onClickCount makes change to the type field of a property and sets it as [MessagePropertyTypes.COUNT]
+ *
+ * @param onClickLimit makes change to the type field of a property and sets it as [MessagePropertyTypes.LIMIT]
+ *
+ * @param addMoreFields adds 5 empty fields to the end of the list
+ * */
+
 @Composable
-fun UpdatesMenu(){
+fun UpdatesMenu(
+    list: List<MessageProperties>,
+    nameFieldChange : (Int, String) -> Unit,
+    valueFieldChange : (Int, String) -> Unit,
+    onClickCount : (Int) -> Unit,
+    onClickLimit : (Int) -> Unit,
+    addMoreFields : () -> Unit
+) {
 
-    var propertyCount by remember { mutableIntStateOf(5) }
-    val list = remember { mutableStateListOf<MessageProperties>() }
-
-    LaunchedEffect(Unit) {
-        for( i in 0..propertyCount){
-            list.add(MessageProperties(i,"", 0, MessagePropertyTypes.COUNT))
-        }
-    }
-
-    Column(
+    LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
             .padding(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
-        Row {
-            Text(
-                text = "Name",
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .weight(0.3f)
-            )
-            Text(
-                text = "Value",
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .weight(0.3f)
-            )
-            Text(
-                text = "Type",
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .weight(0.3f)
-            )
-        }
-
-        /*Column {
-            list.forEach { item ->
-
-
-            }
-        }*/
-
-        LazyColumn {
-            items(list, key = {it.id}){ item ->
-
-                UpdatesMenuItem(
-                    value = item,
-                    nameFieldChange = { id, newName ->
-                        list[id] = list[id].copy(
-                            name = newName
-                        )
-                    },
-                    valueFieldChange = { id, newValue ->
-                        list[id] = list[id].copy(
-                            value = if(newValue.isBlank() || newValue.isEmpty()) 0 
-                            else newValue.replace(Regex("\\D"), "").toInt()
-                        )
-                    },
-                    onClickCount = { id ->
-                        list[id] = list[id].copy(
-                            type = MessagePropertyTypes.COUNT
-                        )
-                    },
-                    onClickLimit = { id ->
-                        list[id] = list[id].copy(
-                            type = MessagePropertyTypes.LIMIT
-                        )
-                    }
+        // Header Row
+        item {
+            Row {
+                Text(
+                    text = "Name",
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .weight(0.3f),
+                    fontSize = 18.sp
+                )
+                Text(
+                    text = "Value",
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .weight(0.3f),
+                    fontSize = 18.sp
+                )
+                Text(
+                    text = "Type",
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .weight(0.3f),
+                    fontSize = 18.sp
                 )
             }
         }
 
+        // property fields list
+        items(list, key = {it.id}){ item ->
 
-        Text(
-            text = "Add more fields"
-        )
+            UpdatesMenuItem(
+                value = item,
+                nameFieldChange = { id, newName -> nameFieldChange(id, newName)},
+                valueFieldChange = { id, newValue -> valueFieldChange(id, newValue)},
+                onClickCount = { id -> onClickCount(id)},
+                onClickLimit = { id -> onClickLimit(id)}
+            )
+        }
 
 
-        Button(
-            onClick = {},
-            colors = ButtonColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = Color.Black,
-                disabledContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                disabledContentColor = Color.Black
-            ),
-        ) {
-            Text("Add")
+        // footer
+        item {
+            Text(
+                text = "Add more fields?",
+                textAlign = TextAlign.End,
+                modifier = Modifier.fillMaxWidth()
+                    .padding(horizontal = 32.dp)
+                    .clickable {addMoreFields()},
+                textDecoration = TextDecoration.Underline
+            )
+
+
+            Button(
+                onClick = {},
+                colors = ButtonColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = Color.Black,
+                    disabledContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                    disabledContentColor = Color.Black
+                ),
+            ) {
+                Text("Add")
+            }
         }
     }
 
 }
+
+/**
+ * [UpdatesMenuItem] defines the layout af an individual row in the updates menu.
+ *
+ * @param value contains latest value for name, value and type of an individual [MessageProperties]
+ *
+ * @param nameFieldChange to change the name parameter
+ *
+ * @param valueFieldChange to change the value parameter
+ *
+ * @param onClickCount to change the type parameter to [MessagePropertyTypes.COUNT]
+ *
+ * @param onClickLimit to change the type parameter to [MessagePropertyTypes.LIMIT]
+ * */
 
 @Composable
 fun UpdatesMenuItem(
@@ -354,7 +423,10 @@ fun UpdatesMenuItem(
     onClickLimit : (Int) -> Unit
 ){
 
+    // controls the dropdown menu
     var isExpanded by remember { mutableStateOf(false) }
+
+    // shows the value of currently selected dropdown item
     var selectedType by remember { mutableStateOf("Count") }
 
     Row(
@@ -368,10 +440,11 @@ fun UpdatesMenuItem(
             value = value.name,
             onValueChange = { nameFieldChange(value.id, it) },
             modifier = Modifier.weight(0.3f)
-                .padding(horizontal = 4.dp),
+                .padding(horizontal = 4.dp)
+                .border(1.dp, Color.Black, RoundedCornerShape(10)),
             colors = TextFieldDefaults.colors(
-                focusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
             )
@@ -382,7 +455,8 @@ fun UpdatesMenuItem(
             value = value.value.toString(),
             onValueChange = { valueFieldChange(value.id, it) },
             modifier = Modifier.weight(0.3f)
-                .padding(horizontal = 4.dp),
+                .padding(horizontal = 4.dp)
+                .border(1.dp, Color.Black, RoundedCornerShape(10)),
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Number
             ),
@@ -390,8 +464,8 @@ fun UpdatesMenuItem(
                 textAlign = TextAlign.Center
             ),
             colors = TextFieldDefaults.colors(
-                focusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                unfocusedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White,
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
             )
@@ -412,7 +486,10 @@ fun UpdatesMenuItem(
                 .fillMaxHeight()
         ) {
             
-            Text(text = selectedType)
+            Text(
+                text = selectedType,
+                fontSize = 16.sp
+            )
             Icon(
                 imageVector = Icons.Default.ArrowDropDown,
                 contentDescription = null
@@ -440,8 +517,5 @@ fun UpdatesMenuItem(
                 )
             }
         }
-
     }
-
-
 }

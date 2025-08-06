@@ -8,8 +8,9 @@ import com.example.quickcast.room_db.dao.MessageDao
 import com.example.quickcast.room_db.dao.SiteDao
 import com.example.quickcast.room_db.entities.Message
 import com.example.quickcast.room_db.entities.Site
+import com.example.quickcast.room_db.entities.TaskContentKeys
 
-@Database(entities = [Site::class, Message::class], version = 1)
+@Database(entities = [Site::class, Message::class, TaskContentKeys::class], version = 1)
 @TypeConverters(Converters::class)
 abstract class AppDb : RoomDatabase() {
     abstract fun siteDao(): SiteDao

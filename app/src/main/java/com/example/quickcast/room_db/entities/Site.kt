@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 @Entity(tableName = "site_table")
 data class Site(
     @PrimaryKey(autoGenerate = false)
-    val id: Long,
+    val id: Int,
     val name: String,
     val contactsList: List<String>
 )

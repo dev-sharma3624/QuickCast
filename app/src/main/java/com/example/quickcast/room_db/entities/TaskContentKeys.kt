@@ -5,6 +5,11 @@ import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
 
+/**
+ * [TaskContentKeys] is the room table that stores the format/keys of a newly created task or a regular update for which
+ * the members of the group will send values as updates.
+ * */
+
 @Entity(
     tableName = "task_content_keys_table",
     foreignKeys = [ForeignKey(
@@ -15,8 +20,8 @@ import androidx.room.PrimaryKey
     )]
 )
 data class TaskContentKeys(
-    @PrimaryKey(autoGenerate = false)
+    @PrimaryKey(autoGenerate = true)
     val formatId: Int,
-    val siteId: Int,
+    val siteId: Long,
     val format: List<String>
 )

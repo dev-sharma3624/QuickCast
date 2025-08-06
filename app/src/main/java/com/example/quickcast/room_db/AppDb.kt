@@ -10,6 +10,24 @@ import com.example.quickcast.room_db.entities.Message
 import com.example.quickcast.room_db.entities.Site
 import com.example.quickcast.room_db.entities.TaskContentKeys
 
+/**
+ * [AppDb] is the database of the application.
+ * ```
+ * Tables connection
+ *
+ * Site(Primary key: id)
+ *                   |
+ *                   |(Foreign key)
+ *           _________________
+ *           |               |
+ *           |        TaskContentKeys(site id)
+ *           |              |
+ *           |              |
+ *           |              |
+ *       Message(siteId, formatId)
+ * ```
+ * */
+
 @Database(entities = [Site::class, Message::class, TaskContentKeys::class], version = 1)
 @TypeConverters(Converters::class)
 abstract class AppDb : RoomDatabase() {

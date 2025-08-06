@@ -53,6 +53,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -101,16 +102,6 @@ fun AddSiteScreenSecond(
 
     // number of fields in the updates menu
     var propertyCount by remember { mutableIntStateOf(4) }
-
-    // contains the data of property fields
-    val list = remember { mutableStateListOf<MessageProperties>() }
-
-    // adds 5 empty fields to the updates menu list in starting
-    LaunchedEffect(Unit) {
-        for( i in 0..propertyCount){
-            list.add(MessageProperties(i,"", 0, MessagePropertyTypes.COUNT))
-        }
-    }
 
     // controls action of back button
     BackHandler {
@@ -226,73 +217,6 @@ fun AddSiteScreenSecond(
                             }
                         }
                     }
-
-                    Row(
-                        modifier = Modifier.padding(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ){
-
-                        Row(
-                            modifier = Modifier.clickable {
-                                isUpdateMenuExpanded.value = !isUpdateMenuExpanded.value
-                            }
-                        ){
-                            Text(
-                                text = "Set up periodic updates",
-                                color = Color.Gray
-                            )
-
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                                contentDescription = null,
-                                tint = Color.Gray,
-                                modifier = Modifier.rotate(periodicUpdatesAnimation)
-                            )
-                        }
-
-                        HorizontalDivider()
-                    }
-
-                    AnimatedVisibility(
-                        visible = isUpdateMenuExpanded.value
-                    ) {
-                        UpdatesMenu(
-                            list = list,
-                            // updates changes made to the name of the field
-                            nameFieldChange = { id, newName ->
-                                list[id] = list[id].copy(
-                                    name = newName
-                                )
-                            },
-                            // updates changes made to the value of the field
-                            valueFieldChange = { id, newValue ->
-                                list[id] = list[id].copy(
-                                    value = if (newValue.isBlank() || newValue.isEmpty()) 0
-                                    else newValue.replace(Regex("\\D"), "").toInt()
-                                )
-                            },
-                            // updates changes made to the type of the field and sets it as Count
-                            onClickCount = { id ->
-                                list[id] = list[id].copy(
-                                    type = MessagePropertyTypes.COUNT
-                                )
-                            },
-                            // updates changes made to the type of the field and sets it as Limit
-                            onClickLimit = { id ->
-                                list[id] = list[id].copy(
-                                    type = MessagePropertyTypes.LIMIT
-                                )
-                            },
-                            // adds five more empty fields at the end of updates menu
-                            addMoreFields = {
-                                for(i in propertyCount+1 .. propertyCount+5){
-                                    list.add(MessageProperties(i,"", 0, MessagePropertyTypes.COUNT))
-                                }
-                                propertyCount += 5
-
-                            }
-                        )
-                    }
                 }
             }
         }
@@ -382,19 +306,6 @@ fun UpdatesMenu(
                     .clickable {addMoreFields()},
                 textDecoration = TextDecoration.Underline
             )
-
-
-            Button(
-                onClick = {},
-                colors = ButtonColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = Color.Black,
-                    disabledContainerColor = MaterialTheme.colorScheme.primaryContainer,
-                    disabledContentColor = Color.Black
-                ),
-            ) {
-                Text("Add")
-            }
         }
     }
 

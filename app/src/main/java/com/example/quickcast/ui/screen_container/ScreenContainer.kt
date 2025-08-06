@@ -42,7 +42,6 @@ package com.example.quickcast.ui.screen_container
  import androidx.compose.runtime.mutableStateListOf
  import androidx.compose.runtime.mutableStateOf
  import androidx.compose.runtime.remember
- import androidx.compose.runtime.rememberCoroutineScope
  import androidx.compose.runtime.setValue
  import androidx.compose.runtime.withFrameNanos
  import androidx.compose.ui.Modifier
@@ -76,6 +75,15 @@ fun ScreenContainer(homeVM: HomeVM) {
     val navController  = rememberNavController()
     val context = LocalContext.current
 
+    var fabData by remember { mutableStateOf<Pair<ImageVector, () -> Unit>?>(
+        Pair( //pair contains one image vector and one lambda function
+
+            Icons.Default.Add,
+            { navController.navigate(OtherScreens.ADD_SITE_SCREEN_FIRST.name) }
+
+        ) // end of Pair
+    ) } // end of remember and mutableState
+
     //for controlling the color of bottom navigation items based on which is currently selected
     var currentScreen by remember{ mutableStateOf(BottomNavigationItems.Home) }
 
@@ -84,16 +92,6 @@ fun ScreenContainer(homeVM: HomeVM) {
 
     // required for showing snack bar messages
     val snackBarHostState = remember { SnackbarHostState() }
-
-    //decides icon for fab based on current page address
-    val fabIcon by remember {
-        derivedStateOf { when(currentBackStackEntry?.destination?.route){
-            BottomNavigationItems.Home.name -> Icons.Default.Add
-            OtherScreens.ADD_SITE_SCREEN_FIRST.name -> Icons.AutoMirrored.Filled.ArrowForward
-            OtherScreens.ADD_SITE_SCREEN_SECOND.name -> Icons.Default.Check
-            else -> null
-        } }
-    }
 
     // contains entries for permissions that have been denied by the user and require
     // alert dialog to be displayed
@@ -144,10 +142,6 @@ fun ScreenContainer(homeVM: HomeVM) {
         skipPartiallyExpanded = false
     )
 
-    val sheetStateVisibility = remember {
-        derivedStateOf { sheetState.isVisible }
-    }
-
     var showBottomSheet by remember { mutableStateOf(false) }
 
 
@@ -185,34 +179,10 @@ fun ScreenContainer(homeVM: HomeVM) {
         },
 
         floatingActionButton = {
-            // null check to control that on what pages fab will be visible.
-            // If a page doesn't have fab then fabIcon = null.
-            if (fabIcon != null){
+            fabData?.let {
                 Fab(
-                    fabIcon = fabIcon!!,
-                    onClickFab = {
-                        when(fabIcon!!){
-                            Icons.Default.Add ->
-                                navController.navigate(OtherScreens.ADD_SITE_SCREEN_FIRST.name)
-
-                            Icons.AutoMirrored.Filled.ArrowForward ->
-                                // if condition to make sure navigation takes place if at least one
-                                // contacts is selected.
-                                if(homeVM.selectedContacts.first().contact != null){
-                                    navController.navigate(OtherScreens.ADD_SITE_SCREEN_SECOND.name)
-                                }
-
-                            Icons.Default.Check ->
-                                // ensuring invite message is sent only if the group/site
-                                // name is not empty
-                                if(homeVM.siteName.value != ""){
-                                    homeVM.setIsSmsProcessActive()
-                                    homeVM.scheduleSmsSending(context)
-                                }
-
-                            else -> {}
-                        }
-                    }
+                    fabIcon = it.first,
+                    onClickFab = { it.second() }
                 )
             }
         },
@@ -261,7 +231,14 @@ fun ScreenContainer(homeVM: HomeVM) {
             }
         }
 
-        PrimaryNavigation(paddingValues, navController, homeVM)
+        PrimaryNavigation(
+            paddingValues = paddingValues,
+            fabData = { pair ->
+                fabData = pair
+            },
+            navHostController = navController,
+            homeVM = homeVM
+        )
 
         // displaying bottom sheet
         if (showBottomSheet){

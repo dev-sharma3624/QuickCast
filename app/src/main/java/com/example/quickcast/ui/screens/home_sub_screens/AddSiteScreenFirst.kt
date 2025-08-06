@@ -22,6 +22,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
@@ -56,6 +57,7 @@ import kotlinx.coroutines.delay
 @Composable
 fun AddSiteScreenFirst(
     callBack: () -> Unit,
+    fabData : () -> Unit,
     viewModel: HomeVM
 ){
     val context = LocalContext.current
@@ -65,6 +67,10 @@ fun AddSiteScreenFirst(
 
     //list of contacts selected for group/site creation
     val selectedContacts = viewModel.selectedContacts
+
+    LaunchedEffect(Unit) {
+        fabData()
+    }
 
     //launched effect aiding selected contacts' row animation
     LaunchedEffect(selectedContacts.size) {

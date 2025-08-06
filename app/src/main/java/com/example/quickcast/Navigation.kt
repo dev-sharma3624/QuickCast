@@ -10,9 +10,14 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -40,9 +45,12 @@ import com.example.quickcast.viewModels.HomeVM
 @Composable
 fun PrimaryNavigation(
     paddingValues: PaddingValues,
+    fabData : (Pair<ImageVector, () -> Unit>) -> Unit,
     navHostController: NavHostController,
     homeVM: HomeVM
 ){
+
+    val context = LocalContext.current
 
     NavHost(navController = navHostController, startDestination = BottomNavigationItems.Home.name) {
 
@@ -75,6 +83,18 @@ fun PrimaryNavigation(
                     navHostController.popBackStack()
                     homeVM.clearContactList()
                 },
+                fabData = {
+                    fabData(
+                        Pair(
+                            Icons.AutoMirrored.Filled.ArrowForward,
+                            {
+                                if(homeVM.selectedContacts.first().contact != null){
+                                    navHostController.navigate(OtherScreens.ADD_SITE_SCREEN_SECOND.name)
+                                }
+                            }
+                        )
+                    )
+                },
                 viewModel = homeVM
             )
         }
@@ -87,6 +107,19 @@ fun PrimaryNavigation(
                     fadeOut(animationSpec = tween(800))}
         ){
             AddSiteScreenSecond(
+                fabData = {
+                    fabData(
+                        Pair(
+                            Icons.Default.Check,
+                            {
+                                if(homeVM.siteName.value != ""){
+                                    homeVM.setIsSmsProcessActive()
+                                    homeVM.scheduleSmsSending(context)
+                                }
+                            }
+                        )
+                    )
+                },
                 viewModel = homeVM,
                 onBackPressed = {
                     navHostController.popBackStack()

@@ -60,6 +60,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
@@ -85,6 +86,7 @@ import com.example.quickcast.viewModels.HomeVM
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun AddSiteScreenSecond(
+    fabData : () -> Unit,
     viewModel: HomeVM,
     onBackPressed : () -> Unit
 ) {
@@ -106,6 +108,10 @@ fun AddSiteScreenSecond(
     // controls action of back button
     BackHandler {
         onBackPressed()
+    }
+
+    LaunchedEffect(Unit) {
+        fabData()
     }
 
     // Parent container

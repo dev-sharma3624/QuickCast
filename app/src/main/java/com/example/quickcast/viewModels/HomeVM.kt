@@ -11,10 +11,8 @@ import com.example.quickcast.data_classes.SelectedContacts
 import com.example.quickcast.data_classes.SmsFormats.SiteInvite
 import com.example.quickcast.data_classes.SmsFormats.SmsPackage
 import com.example.quickcast.enum_classes.SmsTypes
+import com.example.quickcast.repositories.DatabaseRepository
 import com.example.quickcast.repositories.SmsRepository
-import com.example.quickcast.room_db.dao.MessageDao
-import com.example.quickcast.room_db.dao.SiteDao
-import com.example.quickcast.room_db.entities.Site
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
@@ -22,9 +20,8 @@ import kotlinx.coroutines.launch
 import java.util.Calendar
 
 class HomeVM(
-    private val siteDao: SiteDao,
-    private val messageDao: MessageDao,
-    private val smsRepository: SmsRepository
+    private val smsRepository: SmsRepository,
+    private val databaseRepository: DatabaseRepository
 ) : ViewModel() {
     // list of contacts selected for creation of a new site/group
     private val _selectedContacts = mutableStateListOf(SelectedContacts())
@@ -46,6 +43,69 @@ class HomeVM(
     val snackBarMessage : State<String> = _snackBarMessage
 
     val siteInviteObject = mutableStateOf<SiteInvite?>(null)
+
+
+    /**
+     * [createSmsPackage] creates a list<[SmsPackage] from [_selectedContacts]
+     * */
+    private fun createSmsPackage() : List<SmsPackage>{
+        val smsList = mutableListOf<SmsPackage>()
+
+        selectedContacts.forEach {
+            if(it.contact != null){
+                smsList.add(
+                    SmsPackage(
+                        type = SmsTypes.SITE_INVITE,
+                        phone = it.contact.number,
+                        message = SiteInvite(
+                            ts = Calendar.getInstance().timeInMillis,
+                            n = siteName.value,
+                            l = null
+                        )
+                    )
+                )
+            }
+        }
+
+        return smsList
+    }
+
+
+    /**
+     *  [sendMessage] sends List<[SmsPackage]> to [SmsSenderWorker] for
+     *  sending messages..
+     * */
+    fun sendMessage() {
+
+        // get list<SmsPackage> from _selectedContacts
+        val smsList = createSmsPackage()
+
+        viewModelScope.launch(Dispatchers.IO + NonCancellable) {
+            smsRepository.sendMessage(smsList)
+        }
+
+        // controls animation between circularProgressIndicator and content
+        // on AddSiteScreenSecond
+        _isSmsProcessActive.value = false
+
+        // showing snack bar message to user
+        _snackBarMessage.value = "Invite sent successfully."
+
+    }
+
+    fun acceptInvitation() {
+        viewModelScope.launch {
+            siteInviteObject.value?.let {
+                databaseRepository.addSite(it)
+            }
+            isBottomSheetActive.value = false
+        }
+    }
+
+    /** [setIsSmsProcessActive] animates AddSiteScreenSecond from content to CircularProgressIndicator*/
+    fun setIsSmsProcessActive() {
+        _isSmsProcessActive.value = true
+    }
 
     /**[selectContact] invoked when an unselected contact is selected.*/
     fun selectContact(c : SelectedContacts){
@@ -81,12 +141,12 @@ class HomeVM(
     }
 
     /**[clearContactList] removes all elements from [_selectedContacts] in case of back-navigation.*/
-     fun clearContactList(){
-         viewModelScope.launch {
-             delay(500)
-             _selectedContacts.add(0, SelectedContacts())
-             _selectedContacts.removeRange(1, _selectedContacts.size - 1)
-         }
+    fun clearContactList(){
+        viewModelScope.launch {
+            delay(500)
+            _selectedContacts.add(0, SelectedContacts())
+            _selectedContacts.removeRange(1, _selectedContacts.size - 1)
+        }
     }
 
     /**[clearSiteName] sets [siteName] to empty string in case of back-navigation.*/
@@ -94,73 +154,6 @@ class HomeVM(
         viewModelScope.launch {
             delay(100)
             siteName.value = ""
-        }
-    }
-
-    /**
-     *  [sendMessage] sends List<[SmsPackage]> to [SmsSenderWorker] for
-     *  sending messages..
-     * */
-    fun sendMessage() {
-
-        // get list<SmsPackage> from _selectedContacts
-        val smsList = createSmsPackage()
-
-        viewModelScope.launch(Dispatchers.IO + NonCancellable) {
-            smsRepository.sendMessage(smsList)
-        }
-
-        // controls animation between circularProgressIndicator and content
-        // on AddSiteScreenSecond
-        _isSmsProcessActive.value = false
-
-        // showing snack bar message to user
-        _snackBarMessage.value = "Invite sent successfully."
-
-    }
-
-    /**
-     * [createSmsPackage] creates a list<[SmsPackage] from [_selectedContacts]
-     * */
-    private fun createSmsPackage() : List<SmsPackage>{
-        val smsList = mutableListOf<SmsPackage>()
-
-        selectedContacts.forEach {
-            if(it.contact != null){
-                smsList.add(
-                    SmsPackage(
-                        type = SmsTypes.SITE_INVITE,
-                        phone = it.contact.number,
-                        message = SiteInvite(
-                            ts = Calendar.getInstance().timeInMillis,
-                            n = siteName.value,
-                            l = null
-                        )
-                    )
-                )
-            }
-        }
-
-        return smsList
-    }
-
-    /** [setIsSmsProcessActive] animates AddSiteScreenSecond from content to CircularProgressIndicator*/
-    fun setIsSmsProcessActive() {
-        _isSmsProcessActive.value = true
-    }
-
-    fun acceptInvitation() {
-        viewModelScope.launch {
-            siteInviteObject.value?.let {
-                siteDao.insert(
-                    Site(
-                        id = it.ts,
-                        name = it.n,
-                        contactsList = it.l ?: emptyList()
-                    )
-                )
-            }
-            isBottomSheetActive.value = false
         }
     }
 }

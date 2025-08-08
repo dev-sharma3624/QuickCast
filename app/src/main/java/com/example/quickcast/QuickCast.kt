@@ -3,13 +3,12 @@ package com.example.quickcast
 import android.app.Application
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.room.Room
-import com.example.quickcast.repositories.MessageRepository
+import com.example.quickcast.repositories.DatabaseRepository
 import com.example.quickcast.repositories.SmsRepository
 import com.example.quickcast.room_db.AppDb
 import com.example.quickcast.services.NotificationService
 import com.example.quickcast.viewModels.HomeVM
 import com.example.quickcast.viewModels.SiteScreenVM
-import org.koin.android.ext.android.get
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 import org.koin.core.module.dsl.viewModel
@@ -37,7 +36,7 @@ class QuickCast : Application() {
             single { get<AppDb>().siteDao() }
             single { get<AppDb>().messageDao() }
 
-            single { MessageRepository(get()) }
+            single { DatabaseRepository(get(), get()) }
             single { SmsRepository(this@QuickCast) }
         }
 
@@ -46,7 +45,7 @@ class QuickCast : Application() {
             androidContext(this@QuickCast)
             modules(
                 databaseModule,
-                module { viewModel { HomeVM(get(), get(), get()) } },
+                module { viewModel { HomeVM(get(), get()) } },
                 module { viewModel { SiteScreenVM(get()) } }
             )
         }

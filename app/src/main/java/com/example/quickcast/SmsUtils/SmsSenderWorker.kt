@@ -30,7 +30,7 @@ class SmsSenderWorker(
 
         val gson = GsonBuilder()
             .registerTypeAdapter(SmsPackage::class.java, SmsPackageDeserializer())
-            .registerTypeAdapter(SmsPackage::class.java, SmsPackageDeserializer())
+            .registerTypeAdapter(SmsPackage::class.java, SmsPackageSerializer())
             .create()
         val type = object : TypeToken<List<SmsPackage>>() {}.type
 

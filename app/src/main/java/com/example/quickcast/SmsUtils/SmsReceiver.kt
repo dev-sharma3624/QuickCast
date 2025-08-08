@@ -30,7 +30,7 @@ class SmsReceiver : BroadcastReceiver() {
 
     private val gson = GsonBuilder()
         .registerTypeAdapter(SmsPackage::class.java, SmsPackageDeserializer())
-        .registerTypeAdapter(SmsPackage::class.java, SmsPackageDeserializer())
+        .registerTypeAdapter(SmsPackage::class.java, SmsPackageSerializer())
         .create()
 
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)

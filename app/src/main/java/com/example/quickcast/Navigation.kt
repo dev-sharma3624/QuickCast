@@ -50,8 +50,6 @@ fun PrimaryNavigation(
     homeVM: HomeVM
 ){
 
-    val context = LocalContext.current
-
     NavHost(navController = navHostController, startDestination = BottomNavigationItems.Home.name) {
 
         composable(route = BottomNavigationItems.Home.name){
@@ -114,7 +112,7 @@ fun PrimaryNavigation(
                             {
                                 if(homeVM.siteName.value != ""){
                                     homeVM.setIsSmsProcessActive()
-                                    homeVM.scheduleSmsSending(context)
+                                    homeVM.sendMessage()
                                 }
                             }
                         )

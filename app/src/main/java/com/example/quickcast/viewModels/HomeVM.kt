@@ -1,31 +1,30 @@
 package com.example.quickcast.viewModels
 
-import android.content.Context
 import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
-import androidx.work.workDataOf
 import com.example.quickcast.SmsUtils.SmsSenderWorker
 import com.example.quickcast.data_classes.SelectedContacts
 import com.example.quickcast.data_classes.SmsFormats.SiteInvite
 import com.example.quickcast.data_classes.SmsFormats.SmsPackage
 import com.example.quickcast.enum_classes.SmsTypes
+import com.example.quickcast.repositories.SmsRepository
 import com.example.quickcast.room_db.dao.MessageDao
 import com.example.quickcast.room_db.dao.SiteDao
 import com.example.quickcast.room_db.entities.Site
-import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Calendar
 
 class HomeVM(
     private val siteDao: SiteDao,
-    private val messageDao: MessageDao
+    private val messageDao: MessageDao,
+    private val smsRepository: SmsRepository
 ) : ViewModel() {
     // list of contacts selected for creation of a new site/group
     private val _selectedContacts = mutableStateListOf(SelectedContacts())
@@ -99,31 +98,17 @@ class HomeVM(
     }
 
     /**
-     *  [scheduleSmsSending] sends List<[SmsPackage]> to [SmsSenderWorker] for
+     *  [sendMessage] sends List<[SmsPackage]> to [SmsSenderWorker] for
      *  sending messages..
      * */
-    fun scheduleSmsSending(context: Context) {
+    fun sendMessage() {
 
         // get list<SmsPackage> from _selectedContacts
         val smsList = createSmsPackage()
 
-        val gson = Gson()
-
-        //converts smsList to json format
-        val jsonMsgList = gson.toJson(smsList)
-
-        //converts jsonMsgList as Data type object
-        val inputData = workDataOf(
-            "messageList" to jsonMsgList
-        )
-
-        //generates one time work request with input data for SmsSenderWorker
-        val request = OneTimeWorkRequestBuilder<SmsSenderWorker>()
-            .setInputData(inputData)
-            .build()
-
-        //enqueues request for background processing
-        WorkManager.getInstance(context).enqueue(request)
+        viewModelScope.launch(Dispatchers.IO + NonCancellable) {
+            smsRepository.sendMessage(smsList)
+        }
 
         // controls animation between circularProgressIndicator and content
         // on AddSiteScreenSecond

@@ -26,6 +26,7 @@ package com.example.quickcast.ui.screen_container
  import androidx.compose.material.icons.automirrored.filled.ArrowForward
  import androidx.compose.material.icons.filled.Add
  import androidx.compose.material.icons.filled.Check
+ import androidx.compose.material3.BasicAlertDialog
  import androidx.compose.material3.ExperimentalMaterial3Api
  import androidx.compose.material3.FabPosition
  import androidx.compose.material3.FloatingActionButton
@@ -52,13 +53,16 @@ package com.example.quickcast.ui.screen_container
  import androidx.navigation.compose.currentBackStackEntryAsState
  import androidx.navigation.compose.rememberNavController
  import com.example.quickcast.PrimaryNavigation
+ import com.example.quickcast.data_classes.MessageProperties
  import com.example.quickcast.enum_classes.BottomNavigationItems
+ import com.example.quickcast.enum_classes.MessagePropertyTypes
  import com.example.quickcast.enum_classes.NeededPermissions
  import com.example.quickcast.enum_classes.OtherScreens
  import com.example.quickcast.services.PermissionService
  import com.example.quickcast.ui.temporary_components.PermissionAlertDialog
  import com.example.quickcast.ui.temporary_components.SiteInviteBottomSheet
  import com.example.quickcast.ui.temporary_components.SnackBarCustom
+ import com.example.quickcast.ui.temporary_components.UpdatesMenu
  import com.example.quickcast.viewModels.HomeVM
  import kotlinx.coroutines.delay
  import kotlinx.coroutines.launch
@@ -263,6 +267,60 @@ fun ScreenContainer(homeVM: HomeVM) {
                 )
             }
 
+        }
+
+
+        if(homeVM.showDialog){
+            BasicAlertDialog(
+                onDismissRequest = { homeVM.showDialog = false}
+            ) {
+                UpdatesMenu(
+                    list = homeVM.propertyList,
+                    nameFieldChange = {id, str ->
+                        homeVM.propertyList[id] = MessageProperties(
+                            id = id,
+                            name = str,
+                            value = homeVM.propertyList[id].value,
+                            type = homeVM.propertyList[id].type
+                        )
+                    },
+                    valueFieldChange = {id, value ->
+                        homeVM.propertyList[id] = MessageProperties(
+                            id = id,
+                            name = homeVM.propertyList[id].name,
+                            value = value,
+                            type = homeVM.propertyList[id].type
+                        )
+                    },
+                    onClickCount = {id ->
+                        homeVM.propertyList[id] = MessageProperties(
+                            id = id,
+                            name = homeVM.propertyList[id].name,
+                            value = homeVM.propertyList[id].value,
+                            type = MessagePropertyTypes.COUNT
+                        )
+                    },
+                    onClickLimit = {id ->
+                        homeVM.propertyList[id] = MessageProperties(
+                            id = id,
+                            name = homeVM.propertyList[id].name,
+                            value = homeVM.propertyList[id].value,
+                            type = MessagePropertyTypes.LIMIT
+                        )
+                    },
+                    addMoreFields = {
+                        val f = homeVM.propertyList.size
+                        for(i in f..f+4){
+                            homeVM.propertyList.add(
+                                MessageProperties(
+                                    id = i
+                                )
+                            )
+                        }
+                    },
+                    addFields = {}
+                )
+            }
         }
 
     }

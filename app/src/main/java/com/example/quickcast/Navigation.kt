@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,6 +21,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.quickcast.data_classes.MessageProperties
 import com.example.quickcast.enum_classes.BottomNavigationItems
 import com.example.quickcast.enum_classes.OtherScreens
 import com.example.quickcast.ui.screen_container.ScreenContainer
@@ -47,7 +49,7 @@ import org.koin.androidx.compose.koinViewModel
 fun PrimaryNavigation(
     paddingValues: PaddingValues,
     topBar : ((@Composable () -> Unit)?) -> Unit,
-    fabData : (Pair<ImageVector, () -> Unit>) -> Unit,
+    fabData : ((Pair<ImageVector, () -> Unit>)?) -> Unit,
     navHostController: NavHostController,
     homeVM: HomeVM
 ){
@@ -138,8 +140,19 @@ fun PrimaryNavigation(
                     topBar(null)
                     siteScreenVM.site = null
                 },
-                topBar = {tB ->
+                setup = { tB ->
                     topBar{ tB() }
+                    fabData(Pair(
+                        Icons.Default.Add,
+                        {
+                            homeVM.showDialog = true
+                            if(homeVM.propertyList.isEmpty()){
+                                for(i in 0..4){
+                                    homeVM.propertyList.add(MessageProperties(i))
+                                }
+                            }
+                        }
+                    ))
                 }
             )
         }

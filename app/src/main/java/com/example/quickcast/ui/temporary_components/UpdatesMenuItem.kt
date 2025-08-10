@@ -1,13 +1,17 @@
 package com.example.quickcast.ui.temporary_components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -32,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.input.pointer.motionEventSpy
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -61,71 +66,91 @@ import com.example.quickcast.enum_classes.MessagePropertyTypes
 fun UpdatesMenu(
     list: List<MessageProperties>,
     nameFieldChange : (Int, String) -> Unit,
-    valueFieldChange : (Int, String) -> Unit,
+    valueFieldChange : (Int, Int) -> Unit,
     onClickCount : (Int) -> Unit,
     onClickLimit : (Int) -> Unit,
-    addMoreFields : () -> Unit
+    addMoreFields : () -> Unit,
+    addFields : () -> Unit
 ) {
 
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+    Column(
+        modifier = Modifier.background(Color.White, RoundedCornerShape(5))
+            .height(512.dp)
+            .padding(vertical = 32.dp, horizontal = 8.dp)
     ) {
 
         // Header Row
-        item {
-            Row {
-                Text(
-                    text = "Name",
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .weight(0.3f),
-                    fontSize = 18.sp
-                )
-                Text(
-                    text = "Value",
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .weight(0.3f),
-                    fontSize = 18.sp
-                )
-                Text(
-                    text = "Type",
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier
-                        .weight(0.3f),
-                    fontSize = 18.sp
+        Row {
+            Text(
+                text = "Name",
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .weight(0.3f),
+                fontSize = 18.sp
+            )
+            Text(
+                text = "Value",
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .weight(0.3f),
+                fontSize = 18.sp
+            )
+            Text(
+                text = "Type",
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .weight(0.3f),
+                fontSize = 18.sp
+            )
+        }
+
+        LazyColumn(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // property fields list
+            items(list, key = {it.id}){ item ->
+
+                UpdatesMenuItem(
+                    value = item,
+                    nameFieldChange = { id, newName -> nameFieldChange(id, newName)},
+                    valueFieldChange = { id, newValue ->
+                        val nV = newValue.replace(Regex("\\D"), "").trimStart('0').ifEmpty { "0" }.toInt()
+                        valueFieldChange(id, nV)
+                    },
+                    onClickCount = { id -> onClickCount(id)},
+                    onClickLimit = { id -> onClickLimit(id)}
                 )
             }
         }
 
-        // property fields list
-        items(list, key = {it.id}){ item ->
-
-            UpdatesMenuItem(
-                value = item,
-                nameFieldChange = { id, newName -> nameFieldChange(id, newName)},
-                valueFieldChange = { id, newValue -> valueFieldChange(id, newValue)},
-                onClickCount = { id -> onClickCount(id)},
-                onClickLimit = { id -> onClickLimit(id)}
-            )
-        }
-
-
         // footer
-        item {
-            Text(
-                text = "Add more fields?",
-                textAlign = TextAlign.End,
-                modifier = Modifier.fillMaxWidth()
-                    .padding(horizontal = 32.dp)
-                    .clickable {addMoreFields()},
-                textDecoration = TextDecoration.Underline
-            )
+        Text(
+            text = "Add more fields?",
+            textAlign = TextAlign.End,
+            modifier = Modifier.fillMaxWidth()
+                .padding(horizontal = 32.dp)
+                .clickable {addMoreFields()},
+            textDecoration = TextDecoration.Underline
+        )
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Button(
+                onClick = { addFields() }
+            ) {
+                Text(
+                    text = "Add"
+                )
+            }
         }
     }
+
+
 
 }
 
@@ -181,7 +206,7 @@ fun UpdatesMenuItem(
 
 
         TextField(
-            value = value.value.toString(),
+            value = if(value.value == null) "" else value.value.toString(),
             onValueChange = { valueFieldChange(value.id, it) },
             modifier = Modifier.weight(0.3f)
                 .padding(horizontal = 4.dp)

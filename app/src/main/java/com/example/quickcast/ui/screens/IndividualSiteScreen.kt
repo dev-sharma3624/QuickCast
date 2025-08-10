@@ -46,12 +46,12 @@ fun IndividualSiteScreenPreview(){
 @Composable
 fun IndividualSiteScreen(
     viewModel : SiteScreenVM,
-    topBar : (@Composable () -> Unit) -> Unit,
+    setup : (@Composable () -> Unit) -> Unit,
     backNavigationAndCleanUp : () -> Unit
 ){
 
     LaunchedEffect(Unit) {
-        topBar{
+        setup{
             TopAppBar(
                 title = {
                     Text(
@@ -99,14 +99,16 @@ fun IndividualSiteScreen(
     }
 
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
             .background(individualSiteBg),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         if(messageList.isEmpty()){
             Text(
-                text = "No updates"
+                text = "No updates",
+                modifier = Modifier.weight(1f)
             )
         } else{
             LazyColumn(
@@ -123,6 +125,11 @@ fun IndividualSiteScreen(
                 }
             }
         }
+
+        Row {
+
+        }
+
     }
 }
 
@@ -142,7 +149,8 @@ fun IndividualMessage(
 ) {
 
     Row(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
         Box(

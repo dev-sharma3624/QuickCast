@@ -4,7 +4,7 @@ import com.example.quickcast.enum_classes.MessagePropertyTypes
 
 data class MessageProperties(
     val id : Int,
-    val name : String,
-    val value : Int,
-    val type : MessagePropertyTypes
+    val name : String = "",
+    val value : Int? = null,
+    val type : MessagePropertyTypes = MessagePropertyTypes.COUNT
 )

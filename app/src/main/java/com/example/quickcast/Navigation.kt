@@ -17,7 +17,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -29,6 +28,8 @@ import com.example.quickcast.ui.screens.IndividualSiteScreen
 import com.example.quickcast.ui.screens.home_sub_screens.AddSiteScreenFirst
 import com.example.quickcast.ui.screens.home_sub_screens.AddSiteScreenSecond
 import com.example.quickcast.viewModels.HomeVM
+import com.example.quickcast.viewModels.SiteScreenVM
+import org.koin.androidx.compose.koinViewModel
 
 
 /**
@@ -45,15 +46,18 @@ import com.example.quickcast.viewModels.HomeVM
 @Composable
 fun PrimaryNavigation(
     paddingValues: PaddingValues,
+    topBar : ((@Composable () -> Unit)?) -> Unit,
     fabData : (Pair<ImageVector, () -> Unit>) -> Unit,
     navHostController: NavHostController,
     homeVM: HomeVM
 ){
 
+    val siteScreenVM : SiteScreenVM = koinViewModel()
+
     NavHost(navController = navHostController, startDestination = BottomNavigationItems.Home.name) {
 
         composable(route = BottomNavigationItems.Home.name){
-            HomeScreen(paddingValues, navHostController)
+            HomeScreen(siteScreenVM, paddingValues, navHostController)
         }
 
         composable(route = BottomNavigationItems.Notifications.name){
@@ -127,7 +131,17 @@ fun PrimaryNavigation(
         }
 
         composable(route = OtherScreens.INDIVIDUAL_SITE.name){
-            IndividualSiteScreen()
+            IndividualSiteScreen(
+                viewModel = siteScreenVM,
+                backNavigationAndCleanUp = {
+                    navHostController.popBackStack()
+                    topBar(null)
+                    siteScreenVM.site = null
+                },
+                topBar = {tB ->
+                    topBar{ tB() }
+                }
+            )
         }
     }
 }

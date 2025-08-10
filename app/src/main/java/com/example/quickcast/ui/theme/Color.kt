@@ -21,3 +21,5 @@ val BottomIconLight = Color(0xffa1a2a7)
 
 val blue = Color(0xFF5865F2)
 val green = Color(0xFF38A967)
+
+val individualSiteBg = Color(0xFFEEEAEA)

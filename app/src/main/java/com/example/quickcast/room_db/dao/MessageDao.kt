@@ -18,5 +18,5 @@ interface MessageDao {
         FROM message_table
         WHERE siteId = :siteId
     """)
-    fun getMessagesDTOForSite(siteId: Int): Flow<List<MessageDTO>>
+    fun getMessagesDTOForSite(siteId: Long): Flow<List<MessageDTO>>
 }

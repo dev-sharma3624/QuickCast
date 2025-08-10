@@ -5,6 +5,7 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.example.quickcast.room_db.entities.Site
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface SiteDao {
@@ -12,5 +13,5 @@ interface SiteDao {
     suspend fun insert(site: Site): Long
 
     @Query("SELECT * FROM site_table")
-    suspend fun getAllSites(): List<Site>
+    fun getAllSites(): Flow<List<Site>>
 }

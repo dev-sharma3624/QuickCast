@@ -16,7 +16,7 @@ class DatabaseRepository(
     private val messageDao: MessageDao
 ) {
 
-    fun getMessageList(siteId : Int) : Flow<List<MessageDTO>> =
+    fun getMessageList(siteId : Long) : Flow<List<MessageDTO>> =
         messageDao.getMessagesDTOForSite(siteId)
 
     suspend fun addSite(siteInvite: SiteInvite){
@@ -28,5 +28,7 @@ class DatabaseRepository(
             )
         )
     }
+
+    suspend fun getSiteList() = siteDao.getAllSites()
 
 }

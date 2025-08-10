@@ -84,6 +84,8 @@ fun ScreenContainer(homeVM: HomeVM) {
         ) // end of Pair
     ) } // end of remember and mutableState
 
+    var topBar by remember { mutableStateOf<(@Composable () -> Unit)?>(null) }
+
     //for controlling the color of bottom navigation items based on which is currently selected
     var currentScreen by remember{ mutableStateOf(BottomNavigationItems.Home) }
 
@@ -173,9 +175,9 @@ fun ScreenContainer(homeVM: HomeVM) {
         },
 
         topBar = {
-            Spacer(Modifier
-                .fillMaxWidth()
-                .height(16.dp))
+            topBar?.let {
+                it()
+            }
         },
 
         floatingActionButton = {
@@ -233,6 +235,9 @@ fun ScreenContainer(homeVM: HomeVM) {
 
         PrimaryNavigation(
             paddingValues = paddingValues,
+            topBar = {tb ->
+                topBar = tb
+            },
             fabData = { pair ->
                 fabData = pair
             },

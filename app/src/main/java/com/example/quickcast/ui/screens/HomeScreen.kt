@@ -32,12 +32,14 @@ import com.example.quickcast.enum_classes.NavigationRailItems
 import com.example.quickcast.enum_classes.OtherScreens
 import com.example.quickcast.ui.screens.home_sub_screens.SiteScreen
 import com.example.quickcast.ui.screen_container.ScreenContainer
+import com.example.quickcast.viewModels.SiteScreenVM
+import org.koin.androidx.compose.koinViewModel
 
 @Preview(showBackground = true)
 @Composable
 fun HomeScreenPreview(){
     Scaffold {
-        HomeScreen(it, rememberNavController())
+        HomeScreen(koinViewModel(), it, rememberNavController())
     }
 }
 
@@ -49,6 +51,7 @@ fun HomeScreenPreview(){
 
 @Composable
 fun HomeScreen(
+    siteScreenVM: SiteScreenVM,
     paddingValues : PaddingValues,
     navHostController: NavHostController
 ){
@@ -77,7 +80,11 @@ fun HomeScreen(
             when(selectedNavigationRailItem){
 
                 NavigationRailItems.SITES -> SiteScreen(
-                    onClickSite = {navHostController.navigate(OtherScreens.INDIVIDUAL_SITE.name)}
+                    siteScreenVM = siteScreenVM,
+                    onClickSite = {site->
+                        siteScreenVM.loadMessageList(site)
+                        navHostController.navigate(OtherScreens.INDIVIDUAL_SITE.name)
+                    }
                 )
 
                 NavigationRailItems.COMPARISON -> BlankScreen("Comparison")

@@ -47,9 +47,6 @@ class HomeVM(
 
     val siteInviteObject = mutableStateOf<SiteInvite?>(null)
 
-    var showDialog by mutableStateOf(false)
-    val propertyList = mutableStateListOf<MessageProperties>()
-
 
     /**
      * [createSmsPackageWithNumber] creates a list<[SmsPackage] from [_selectedContacts]

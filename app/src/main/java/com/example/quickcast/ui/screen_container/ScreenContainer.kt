@@ -269,60 +269,6 @@ fun ScreenContainer(homeVM: HomeVM) {
 
         }
 
-
-        if(homeVM.showDialog){
-            BasicAlertDialog(
-                onDismissRequest = { homeVM.showDialog = false}
-            ) {
-                UpdatesMenu(
-                    list = homeVM.propertyList,
-                    nameFieldChange = {id, str ->
-                        homeVM.propertyList[id] = MessageProperties(
-                            id = id,
-                            name = str,
-                            value = homeVM.propertyList[id].value,
-                            type = homeVM.propertyList[id].type
-                        )
-                    },
-                    valueFieldChange = {id, value ->
-                        homeVM.propertyList[id] = MessageProperties(
-                            id = id,
-                            name = homeVM.propertyList[id].name,
-                            value = value,
-                            type = homeVM.propertyList[id].type
-                        )
-                    },
-                    onClickCount = {id ->
-                        homeVM.propertyList[id] = MessageProperties(
-                            id = id,
-                            name = homeVM.propertyList[id].name,
-                            value = homeVM.propertyList[id].value,
-                            type = MessagePropertyTypes.COUNT
-                        )
-                    },
-                    onClickLimit = {id ->
-                        homeVM.propertyList[id] = MessageProperties(
-                            id = id,
-                            name = homeVM.propertyList[id].name,
-                            value = homeVM.propertyList[id].value,
-                            type = MessagePropertyTypes.LIMIT
-                        )
-                    },
-                    addMoreFields = {
-                        val f = homeVM.propertyList.size
-                        for(i in f..f+4){
-                            homeVM.propertyList.add(
-                                MessageProperties(
-                                    id = i
-                                )
-                            )
-                        }
-                    },
-                    addFields = {}
-                )
-            }
-        }
-
     }
 
 }

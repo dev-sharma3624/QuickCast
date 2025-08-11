@@ -14,6 +14,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -28,7 +29,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.example.quickcast.data_classes.MessageProperties
+import com.example.quickcast.enum_classes.MessagePropertyTypes
 import com.example.quickcast.room_db.dto.MessageDTO
+import com.example.quickcast.ui.temporary_components.UpdatesMenu
 import com.example.quickcast.ui.theme.individualSiteBg
 import com.example.quickcast.viewModels.SiteScreenVM
 
@@ -96,6 +100,59 @@ fun IndividualSiteScreen(
             sentByMeShape
         else
             sentByOthersShape
+    }
+
+    if(viewModel.showDialog){
+        BasicAlertDialog(
+            onDismissRequest = { viewModel.showDialog = false}
+        ) {
+            UpdatesMenu(
+                list = viewModel.propertyList,
+                nameFieldChange = {id, str ->
+                    viewModel.propertyList[id] = MessageProperties(
+                        id = id,
+                        name = str,
+                        value = viewModel.propertyList[id].value,
+                        type = viewModel.propertyList[id].type
+                    )
+                },
+                valueFieldChange = {id, value ->
+                    viewModel.propertyList[id] = MessageProperties(
+                        id = id,
+                        name = viewModel.propertyList[id].name,
+                        value = value,
+                        type = viewModel.propertyList[id].type
+                    )
+                },
+                onClickCount = {id ->
+                    viewModel.propertyList[id] = MessageProperties(
+                        id = id,
+                        name = viewModel.propertyList[id].name,
+                        value = viewModel.propertyList[id].value,
+                        type = MessagePropertyTypes.COUNT
+                    )
+                },
+                onClickLimit = {id ->
+                    viewModel.propertyList[id] = MessageProperties(
+                        id = id,
+                        name = viewModel.propertyList[id].name,
+                        value = viewModel.propertyList[id].value,
+                        type = MessagePropertyTypes.LIMIT
+                    )
+                },
+                addMoreFields = {
+                    val f = viewModel.propertyList.size
+                    for(i in f..f+4){
+                        viewModel.propertyList.add(
+                            MessageProperties(
+                                id = i
+                            )
+                        )
+                    }
+                },
+                addFields = {}
+            )
+        }
     }
 
     Column(

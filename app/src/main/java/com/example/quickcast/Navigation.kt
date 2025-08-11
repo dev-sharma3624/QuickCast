@@ -145,10 +145,10 @@ fun PrimaryNavigation(
                     fabData(Pair(
                         Icons.Default.Add,
                         {
-                            homeVM.showDialog = true
-                            if(homeVM.propertyList.isEmpty()){
+                            siteScreenVM.showDialog = true
+                            if(siteScreenVM.propertyList.isEmpty()){
                                 for(i in 0..4){
-                                    homeVM.propertyList.add(MessageProperties(i))
+                                    siteScreenVM.propertyList.add(MessageProperties(i))
                                 }
                             }
                         }

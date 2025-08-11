@@ -27,7 +27,7 @@ class SmsRepository(
     /**
      * [sendMessage] receives a list of type [SmsPackage] which then sends it to various devices through [SmsSenderWorker]
      * */
-    fun sendMessage(smsList : List<SmsPackage>): String?{
+    fun sendMessage(smsList : List<Pair<String, SmsPackage>>): String?{
 
         try {
             //converts smsList to json format

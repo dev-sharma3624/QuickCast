@@ -32,14 +32,14 @@ class SmsSenderWorker(
             .registerTypeAdapter(SmsPackage::class.java, SmsPackageDeserializer())
             .registerTypeAdapter(SmsPackage::class.java, SmsPackageSerializer())
             .create()
-        val type = object : TypeToken<List<SmsPackage>>() {}.type
+        val type = object : TypeToken<List<Pair<String, SmsPackage>>>() {}.type
 
         // converting json-format string back to List<SmsPackage>
-        val messageList: List<SmsPackage> = gson.fromJson(jsonList, type)
+        val messageList: List<Pair<String, SmsPackage>> = gson.fromJson(jsonList, type)
 
         val smsManager = SmsManager.getDefault()
 
-        messageList.forEach { smsPackage ->
+        messageList.forEach { smsPackagePair ->
 
             // PendingIntent that will be broadcast when message is delivered successfully
             val deliveredIntent = PendingIntent.getBroadcast(
@@ -52,9 +52,9 @@ class SmsSenderWorker(
 
             // sending each message to the specific phone number contained in smsPackage with the message in json-formatted string
             // with a specified pending intent that will be broadcast when message is delivered successfully.
-            smsManager.sendTextMessage(smsPackage.phone, null, gson.toJson(smsPackage), null, deliveredIntent)
+            smsManager.sendTextMessage(smsPackagePair.first, null, gson.toJson(smsPackagePair.second), null, deliveredIntent)
 
-            Log.d("SMS_DELIVERY", "src : ${smsPackage.phone}, content : ${smsPackage}")
+            Log.d("SMS_DELIVERY", "src : ${smsPackagePair.first}, content : ${smsPackagePair.second}")
         }
 
         return Result.success()

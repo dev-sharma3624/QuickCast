@@ -5,7 +5,6 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -53,21 +52,23 @@ class HomeVM(
 
 
     /**
-     * [createSmsPackage] creates a list<[SmsPackage] from [_selectedContacts]
+     * [createSmsPackageWithNumber] creates a list<[SmsPackage] from [_selectedContacts]
      * */
-    private fun createSmsPackage() : List<SmsPackage>{
-        val smsList = mutableListOf<SmsPackage>()
+    private fun createSmsPackageWithNumber() : List<Pair<String, SmsPackage>>{
+        val smsList = mutableListOf<Pair<String, SmsPackage>>()
 
         selectedContacts.forEach {
             if(it.contact != null){
                 smsList.add(
-                    SmsPackage(
-                        type = SmsTypes.SITE_INVITE,
-                        phone = it.contact.number,
-                        message = SiteInvite(
-                            ts = Calendar.getInstance().timeInMillis,
-                            n = siteName.value,
-                            l = null
+                    Pair(
+                        it.contact.number,
+                        SmsPackage(
+                            type = SmsTypes.SITE_INVITE,
+                            message = SiteInvite(
+                                ts = Calendar.getInstance().timeInMillis,
+                                n = siteName.value,
+                                l = null
+                            )
                         )
                     )
                 )
@@ -85,7 +86,7 @@ class HomeVM(
     fun sendMessage() {
 
         // get list<SmsPackage> from _selectedContacts
-        val smsList = createSmsPackage()
+        val smsList = createSmsPackageWithNumber()
 
         viewModelScope.launch(Dispatchers.IO + NonCancellable) {
             smsRepository.sendMessage(smsList)

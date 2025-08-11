@@ -16,7 +16,6 @@ class SmsPackageSerializer : JsonSerializer<SmsPackage> {
     ): JsonElement {
         val obj = JsonObject()
         obj.addProperty("type", src.type.name)
-        obj.addProperty("phone", src.phone)
 
         val messageJson = when (val msg = src.message) {
             is SiteInvite -> context.serialize(msg)

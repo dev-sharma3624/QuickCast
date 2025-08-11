@@ -21,13 +21,12 @@ class SmsPackageDeserializer : JsonDeserializer<SmsPackage> {
         val jsonObject = json.asJsonObject
 
         val smsType = SmsTypes.valueOf(jsonObject["type"].asString)
-        val phone = jsonObject["phone"].asString
 
         val messageJson = jsonObject["message"]
         val message: MessageContent = when (smsType) {
             SmsTypes.SITE_INVITE -> context.deserialize<SiteInvite>(messageJson, SiteInvite::class.java)
         }
 
-        return SmsPackage(smsType, phone, message)
+        return SmsPackage(smsType, message)
     }
 }

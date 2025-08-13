@@ -13,11 +13,11 @@ import androidx.annotation.RequiresPermission
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ProcessLifecycleOwner
 import com.example.quickcast.MainActivity
+import com.example.quickcast.data_classes.SmsFormats.InvitationResponse
 import com.example.quickcast.data_classes.SmsFormats.MessageContent
 import com.example.quickcast.data_classes.SmsFormats.SiteInvite
 import com.example.quickcast.data_classes.SmsFormats.SmsPackage
 import com.example.quickcast.enum_classes.SmsTypes
-import com.example.quickcast.room_db.entities.Site
 import com.example.quickcast.services.NotificationService
 import com.google.gson.GsonBuilder
 
@@ -83,7 +83,7 @@ class SmsReceiver : BroadcastReceiver() {
                             val jsonMsg = gson.fromJson(sms.messageBody, SmsPackage::class.java)
                             Log.d("SmsReceiver", "received : $jsonMsg")
 
-                            decideSuitableAction(jsonMsg, context)
+                            decideSuitableAction(jsonMsg, sms.displayOriginatingAddress, context)
 
 
                         } catch (e: Exception) {
@@ -102,11 +102,12 @@ class SmsReceiver : BroadcastReceiver() {
      * */
 
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
-    private fun decideSuitableAction(receivedMsg : SmsPackage, context: Context){
+    private fun decideSuitableAction(receivedMsg: SmsPackage, phoneNumber: String, context: Context){
 
         when(receivedMsg.message){
 
-            is SiteInvite -> siteInviteProcess(context, receivedMsg.message)
+            is SiteInvite -> siteInviteProcess(context, phoneNumber, receivedMsg.message)
+            is InvitationResponse -> TODO()
         }
 
 
@@ -117,7 +118,12 @@ class SmsReceiver : BroadcastReceiver() {
      * taps on notification.
      * */
 
-    private fun createPendingIntent(context: Context, smsTypes: SmsTypes, messageContent: MessageContent) : PendingIntent {
+    private fun createPendingIntent(
+        context: Context,
+        smsTypes: SmsTypes,
+        messageContent: MessageContent,
+        phoneNumber: String
+    ) : PendingIntent {
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
         }
@@ -125,11 +131,14 @@ class SmsReceiver : BroadcastReceiver() {
         when(smsTypes){
             SmsTypes.SITE_INVITE -> {
                 intent.apply {
-                    putExtra("Msg_Object", messageContent as SiteInvite)
+                    putExtra("Msg_Object", messageContent)
+                    putExtra("Phone_Number", phoneNumber)
                     /*putExtra(smsTypes.name, true)
                     putExtra("Msg_Body", gson.toJson(siteInvite))*/
                 }
             }
+
+            SmsTypes.INVITATION_RESPONSE -> TODO()
         }
 
 
@@ -153,7 +162,11 @@ class SmsReceiver : BroadcastReceiver() {
      * */
 
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
-    private fun siteInviteProcess(context: Context, messageContent: MessageContent){
+    private fun siteInviteProcess(
+        context: Context,
+        phoneNumber: String,
+        messageContent: MessageContent
+    ){
 
         // checks whether app is in foreground or not
         val isAppInForeground = ProcessLifecycleOwner.get().lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
@@ -165,6 +178,7 @@ class SmsReceiver : BroadcastReceiver() {
                         Intent.FLAG_ACTIVITY_CLEAR_TOP or
                         Intent.FLAG_ACTIVITY_SINGLE_TOP
                 putExtra("Msg_Object", messageContent as SiteInvite)
+                putExtra("Phone_Number", phoneNumber)
                 /*putExtra(SmsTypes.SITE_INVITE.name, true)
                 putExtra("Msg_Body", gson.toJson(siteInvite))*/
             }
@@ -179,7 +193,8 @@ class SmsReceiver : BroadcastReceiver() {
                 createPendingIntent(
                     context = context,
                     smsTypes = SmsTypes.SITE_INVITE,
-                    messageContent = messageContent
+                    phoneNumber = phoneNumber,
+                    messageContent = messageContent as SiteInvite
                 )
             } else null
         )

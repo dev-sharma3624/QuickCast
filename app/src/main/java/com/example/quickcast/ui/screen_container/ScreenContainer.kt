@@ -16,17 +16,11 @@ package com.example.quickcast.ui.screen_container
  import androidx.compose.animation.slideOutVertically
  import androidx.compose.animation.togetherWith
  import androidx.compose.foundation.layout.Box
- import androidx.compose.foundation.layout.Spacer
- import androidx.compose.foundation.layout.fillMaxWidth
- import androidx.compose.foundation.layout.height
  import androidx.compose.foundation.layout.navigationBarsPadding
  import androidx.compose.foundation.layout.padding
  import androidx.compose.foundation.layout.systemBarsPadding
  import androidx.compose.material.icons.Icons
- import androidx.compose.material.icons.automirrored.filled.ArrowForward
  import androidx.compose.material.icons.filled.Add
- import androidx.compose.material.icons.filled.Check
- import androidx.compose.material3.BasicAlertDialog
  import androidx.compose.material3.ExperimentalMaterial3Api
  import androidx.compose.material3.FabPosition
  import androidx.compose.material3.FloatingActionButton
@@ -38,7 +32,6 @@ package com.example.quickcast.ui.screen_container
  import androidx.compose.material3.rememberModalBottomSheetState
  import androidx.compose.runtime.Composable
  import androidx.compose.runtime.LaunchedEffect
- import androidx.compose.runtime.derivedStateOf
  import androidx.compose.runtime.getValue
  import androidx.compose.runtime.mutableStateListOf
  import androidx.compose.runtime.mutableStateOf
@@ -53,16 +46,13 @@ package com.example.quickcast.ui.screen_container
  import androidx.navigation.compose.currentBackStackEntryAsState
  import androidx.navigation.compose.rememberNavController
  import com.example.quickcast.PrimaryNavigation
- import com.example.quickcast.data_classes.MessageProperties
  import com.example.quickcast.enum_classes.BottomNavigationItems
- import com.example.quickcast.enum_classes.MessagePropertyTypes
  import com.example.quickcast.enum_classes.NeededPermissions
  import com.example.quickcast.enum_classes.OtherScreens
  import com.example.quickcast.services.PermissionService
  import com.example.quickcast.ui.temporary_components.PermissionAlertDialog
  import com.example.quickcast.ui.temporary_components.SiteInviteBottomSheet
  import com.example.quickcast.ui.temporary_components.SnackBarCustom
- import com.example.quickcast.ui.temporary_components.UpdatesMenu
  import com.example.quickcast.viewModels.HomeVM
  import kotlinx.coroutines.delay
  import kotlinx.coroutines.launch
@@ -261,7 +251,7 @@ fun ScreenContainer(homeVM: HomeVM) {
                 dragHandle = {}
             ) {
                 SiteInviteBottomSheet(
-                    siteInvite = homeVM.siteInviteObject,
+                    siteInvite = homeVM.siteInviteObject.value!!.second,
                     onClickAccept = { homeVM.acceptInvitation() },
                     onClickReject = {}
                 )

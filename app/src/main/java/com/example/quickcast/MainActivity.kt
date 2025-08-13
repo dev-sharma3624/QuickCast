@@ -32,7 +32,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val intentObject: MessageContent? = createMessageContentObjectFromIntent(intent)
+        val intentObject: Pair<String, MessageContent>? = createMessageContentObjectFromIntent(intent)
 
         enableEdgeToEdge(
             statusBarStyle = SystemBarStyle.light(sideGrillLight.toArgb(), sideGrillLight.toArgb()),
@@ -66,33 +66,46 @@ class MainActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
 
-        val intentObject: MessageContent? = createMessageContentObjectFromIntent(intent)
+        val intentObject: Pair<String, MessageContent>? = createMessageContentObjectFromIntent(intent)
 
-        setBottomSheetStates(intentObject)
+        intentObject?.let {
+            setBottomSheetStates(it)
+        }
+
 
     }
 
-    private fun setBottomSheetStates(intentObject : MessageContent?){
+    private fun setBottomSheetStates(intentObject : Pair<String, MessageContent>){
 
-        val isSiteInvite = intentObject is SiteInvite
+        val isSiteInvite = intentObject.second is SiteInvite
 
         // setting value received from intent to view model
         if (isSiteInvite) {
             vm?.isBottomSheetActive?.value = true
-            vm?.siteInviteObject?.value = intentObject as SiteInvite
+            vm?.siteInviteObject?.value = Pair(intentObject.first, intentObject.second as SiteInvite)
         } else {
             vm?.isBottomSheetActive?.value = false
             vm?.siteInviteObject?.value = null
         }
     }
 
-    private fun createMessageContentObjectFromIntent(intent : Intent?) : MessageContent?{
+    private fun createMessageContentObjectFromIntent(intent : Intent?) : Pair<String, MessageContent>?{
+
+        val phoneNumber= intent?.getStringExtra("Phone_Number")
+        val msgObject : MessageContent?
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-           return intent?.getParcelableExtra("Msg_Object", MessageContent::class.java)
+            msgObject = intent?.getParcelableExtra("Msg_Object", MessageContent::class.java)
+
         } else {
             @Suppress("DEPRECATION")
-            return intent?.getParcelableExtra("Msg_Object") as? MessageContent
+            msgObject =  intent?.getParcelableExtra("Msg_Object") as? MessageContent
         }
+
+
+        return if(msgObject != null && phoneNumber != null)
+                    Pair(phoneNumber, msgObject)
+                else
+                    null
     }
 }

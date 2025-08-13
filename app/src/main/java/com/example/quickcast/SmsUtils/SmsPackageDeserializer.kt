@@ -1,5 +1,6 @@
 package com.example.quickcast.SmsUtils
 
+import com.example.quickcast.data_classes.SmsFormats.InvitationResponse
 import com.example.quickcast.data_classes.SmsFormats.MessageContent
 import com.example.quickcast.data_classes.SmsFormats.SiteInvite
 import com.example.quickcast.data_classes.SmsFormats.SmsPackage
@@ -25,6 +26,7 @@ class SmsPackageDeserializer : JsonDeserializer<SmsPackage> {
         val messageJson = jsonObject["message"]
         val message: MessageContent = when (smsType) {
             SmsTypes.SITE_INVITE -> context.deserialize<SiteInvite>(messageJson, SiteInvite::class.java)
+            SmsTypes.INVITATION_RESPONSE -> context.deserialize<InvitationResponse>(messageJson, InvitationResponse::class.java)
         }
 
         return SmsPackage(smsType, message)

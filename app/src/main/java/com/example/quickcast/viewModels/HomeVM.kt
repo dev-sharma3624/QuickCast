@@ -8,9 +8,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.quickcast.SmsUtils.SmsCreator
 import com.example.quickcast.SmsUtils.SmsSenderWorker
 import com.example.quickcast.data_classes.MessageProperties
 import com.example.quickcast.data_classes.SelectedContacts
+import com.example.quickcast.data_classes.SmsFormats.InvitationResponse
+import com.example.quickcast.data_classes.SmsFormats.MessageContent
 import com.example.quickcast.data_classes.SmsFormats.SiteInvite
 import com.example.quickcast.data_classes.SmsFormats.SmsPackage
 import com.example.quickcast.enum_classes.SmsTypes
@@ -45,7 +48,7 @@ class HomeVM(
     private val _snackBarMessage = mutableStateOf("")
     val snackBarMessage : State<String> = _snackBarMessage
 
-    val siteInviteObject = mutableStateOf<SiteInvite?>(null)
+    val siteInviteObject = mutableStateOf<Pair<String, SiteInvite>?>(null)
 
 
     /**
@@ -101,7 +104,11 @@ class HomeVM(
     fun acceptInvitation() {
         viewModelScope.launch {
             siteInviteObject.value?.let {
-                databaseRepository.addSite(it)
+
+                val smsList = SmsCreator().createSmsPackageWithNumber(true, it.first, it.second)
+
+                smsRepository.sendMessage(smsList)
+                databaseRepository.addSite(it.second)
             }
             isBottomSheetActive.value = false
         }

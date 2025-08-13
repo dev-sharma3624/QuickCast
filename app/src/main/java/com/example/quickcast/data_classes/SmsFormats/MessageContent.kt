@@ -27,3 +27,16 @@ data class SiteInvite (
     val l : List<String>?, //list of all other contacts
     val ts : Long
 ) : MessageContent()
+
+/**
+ * [InvitationResponse] : data class representing the object that will be sent as a response to an invitation for joining a site/group.
+ *
+ * @param b represents the accept/reject response.
+ * @param id the id of the site for which the response has come.
+ * */
+
+@Parcelize
+data class InvitationResponse(
+    val b : Boolean,
+    val id : Long,
+) : MessageContent()

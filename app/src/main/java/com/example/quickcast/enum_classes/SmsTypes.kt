@@ -5,5 +5,6 @@ package com.example.quickcast.enum_classes
  * can be sent or received on the application.
  * */
 enum class SmsTypes {
-    SITE_INVITE
+    SITE_INVITE,
+    INVITATION_RESPONSE
 }

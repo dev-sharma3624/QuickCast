@@ -1,6 +1,7 @@
 package com.example.quickcast.data_classes.SmsFormats
 
 import android.os.Parcelable
+import com.example.quickcast.enum_classes.MessagePropertyTypes
 import kotlinx.parcelize.Parcelize
 
 
@@ -40,3 +41,16 @@ data class InvitationResponse(
     val b : Boolean,
     val id : Long,
 ) : MessageContent()
+
+
+@Parcelize
+data class CreateTask(
+    val l : List<SendableMessageProperty>
+) : MessageContent()
+
+@Parcelize
+data class SendableMessageProperty(
+    val k : String,
+    val v : Int,
+    val t : MessagePropertyTypes
+): Parcelable

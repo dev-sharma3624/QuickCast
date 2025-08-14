@@ -1,10 +1,14 @@
 package com.example.quickcast.SmsUtils
 
+import com.example.quickcast.data_classes.MessageProperties
 import com.example.quickcast.data_classes.SelectedContacts
+import com.example.quickcast.data_classes.SmsFormats.CreateTask
 import com.example.quickcast.data_classes.SmsFormats.InvitationResponse
+import com.example.quickcast.data_classes.SmsFormats.SendableMessageProperty
 import com.example.quickcast.data_classes.SmsFormats.SiteInvite
 import com.example.quickcast.data_classes.SmsFormats.SmsPackage
 import com.example.quickcast.enum_classes.SmsTypes
+import com.example.quickcast.room_db.entities.Site
 import java.util.Calendar
 import java.util.SimpleTimeZone
 
@@ -13,7 +17,7 @@ class SmsCreator {
     /**
      * [createSmsPackageWithNumber] creates a list<[SmsPackage] from [_selectedContacts]
      * */
-    fun createSmsPackageWithNumber(selectedContacts : List<SelectedContacts>, siteName : String) : List<Pair<String, SmsPackage>>{
+    fun createSmsPackageWithNumber(selectedContacts : List<SelectedContacts>, siteName : String, joinedMember : List<String>?) : List<Pair<String, SmsPackage>>{
 
         val smsList = mutableListOf<Pair<String, SmsPackage>>()
 
@@ -27,7 +31,7 @@ class SmsCreator {
                             message = SiteInvite(
                                 ts = Calendar.getInstance().timeInMillis,
                                 n = siteName,
-                                l = null
+                                l = joinedMember
                             )
                         )
                     )
@@ -46,7 +50,7 @@ class SmsCreator {
         return listOf(Pair(phoneNumber, smsPackage))
     }
 
-    /*fun createSmsPackageWithNumber(messageProperties : List<MessageProperties>, site : Site) : List<Pair<String, SmsPackage>>{
+    fun createSmsPackageWithNumber(messageProperties : List<MessageProperties>, site : Site) : List<Pair<String, SmsPackage>>{
 
         val smsList = mutableListOf<Pair<String, SmsPackage>>()
 
@@ -73,6 +77,6 @@ class SmsCreator {
         }
 
         return smsList
-    }*/
+    }
 
 }

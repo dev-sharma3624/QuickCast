@@ -6,10 +6,13 @@ import androidx.room.Room
 import com.example.quickcast.repositories.DatabaseRepository
 import com.example.quickcast.repositories.SmsRepository
 import com.example.quickcast.room_db.AppDb
+import com.example.quickcast.room_db.background_workers.DbBackgroundWorker
 import com.example.quickcast.services.NotificationService
 import com.example.quickcast.viewModels.HomeVM
 import com.example.quickcast.viewModels.SiteScreenVM
 import org.koin.android.ext.koin.androidContext
+import org.koin.androidx.workmanager.dsl.worker
+import org.koin.androidx.workmanager.koin.workManagerFactory
 import org.koin.core.context.startKoin
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -38,15 +41,19 @@ class QuickCast : Application() {
 
             single { DatabaseRepository(get(), get()) }
             single { SmsRepository(this@QuickCast) }
+
+            worker { DbBackgroundWorker(androidContext(), get(), get()) }
+
         }
 
 
         startKoin {
             androidContext(this@QuickCast)
+            workManagerFactory()
             modules(
                 databaseModule,
                 module { viewModel { HomeVM(get(), get()) } },
-                module { viewModel { SiteScreenVM(get()) } }
+                module { viewModel { SiteScreenVM(get(), get()) } }
             )
         }
 

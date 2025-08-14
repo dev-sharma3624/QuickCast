@@ -12,12 +12,19 @@ import android.util.Log
 import androidx.annotation.RequiresPermission
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ProcessLifecycleOwner
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.workDataOf
 import com.example.quickcast.MainActivity
+import com.example.quickcast.data_classes.Contact
 import com.example.quickcast.data_classes.SmsFormats.InvitationResponse
+import com.example.quickcast.data_classes.SmsFormats.CreateTask
 import com.example.quickcast.data_classes.SmsFormats.MessageContent
 import com.example.quickcast.data_classes.SmsFormats.SiteInvite
 import com.example.quickcast.data_classes.SmsFormats.SmsPackage
 import com.example.quickcast.enum_classes.SmsTypes
+import com.example.quickcast.room_db.background_workers.DbBackgroundWorker
+import com.example.quickcast.services.ContactsService
 import com.example.quickcast.services.NotificationService
 import com.google.gson.GsonBuilder
 
@@ -107,9 +114,53 @@ class SmsReceiver : BroadcastReceiver() {
         when(receivedMsg.message){
 
             is SiteInvite -> siteInviteProcess(context, phoneNumber, receivedMsg.message)
-            is InvitationResponse -> TODO()
+            is InvitationResponse -> inviteResponse(context, phoneNumber, receivedMsg.message)
+            is CreateTask -> TODO()
         }
 
+
+    }
+
+    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
+    private fun inviteResponse(context: Context, phoneNumber: String, receivedMsg: InvitationResponse) {
+
+        val contactsList = ContactsService().getContactsList(context)
+
+        val isAppInForeground = isAppInForeground()
+
+        val contactName = contactsList.find { it.number == phoneNumber }?.name ?: phoneNumber
+
+        val response = if(receivedMsg.b) "accepted" else "declined"
+
+
+        val inputData = workDataOf(
+            "site_Id" to receivedMsg.id,
+            "response" to receivedMsg.b,
+            "phone_Number" to phoneNumber,
+            "content_String" to "$phoneNumber $response your invitation."
+        )
+
+        //generates one time work request with input data for SmsSenderWorker
+        val request = OneTimeWorkRequestBuilder<DbBackgroundWorker>()
+            .setInputData(inputData)
+            .build()
+
+        //enqueues request for background processing
+        WorkManager.getInstance(context).enqueue(request)
+
+
+        NotificationService().showSimpleNotification(
+            context = context,
+            msg = "$contactName $response your invitation",
+            pendingIntent = if(!isAppInForeground){ // if (app in foreground) pendingIntent else null
+                createPendingIntent(
+                    context = context,
+                    smsTypes = SmsTypes.INVITATION_RESPONSE,
+                    phoneNumber = phoneNumber,
+                    messageContent = receivedMsg
+                )
+            } else null
+        )
 
     }
 
@@ -127,20 +178,21 @@ class SmsReceiver : BroadcastReceiver() {
         val intent = Intent(context, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
         }
-
-        when(smsTypes){
-            SmsTypes.SITE_INVITE -> {
-                intent.apply {
-                    putExtra("Msg_Object", messageContent)
-                    putExtra("Phone_Number", phoneNumber)
-                    /*putExtra(smsTypes.name, true)
-                    putExtra("Msg_Body", gson.toJson(siteInvite))*/
-                }
-            }
-
-            SmsTypes.INVITATION_RESPONSE -> TODO()
+        intent.apply {
+            putExtra("Msg_Object", messageContent)
+            putExtra("Phone_Number", phoneNumber)
         }
 
+        /*when(smsTypes){
+            SmsTypes.SITE_INVITE -> {
+            }
+
+            SmsTypes.INVITATION_RESPONSE -> {
+
+            }
+
+            SmsTypes.CREATE_TASK -> TODO()
+        }*/
 
         val pendingIntent = PendingIntent.getActivity(
             context,
@@ -169,7 +221,7 @@ class SmsReceiver : BroadcastReceiver() {
     ){
 
         // checks whether app is in foreground or not
-        val isAppInForeground = ProcessLifecycleOwner.get().lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
+        val isAppInForeground = isAppInForeground()
 
         if(isAppInForeground){
             // launches an intent that will be received by onNewIntent function in MainActivity
@@ -179,8 +231,6 @@ class SmsReceiver : BroadcastReceiver() {
                         Intent.FLAG_ACTIVITY_SINGLE_TOP
                 putExtra("Msg_Object", messageContent as SiteInvite)
                 putExtra("Phone_Number", phoneNumber)
-                /*putExtra(SmsTypes.SITE_INVITE.name, true)
-                putExtra("Msg_Body", gson.toJson(siteInvite))*/
             }
             context.startActivity(intent)
 
@@ -198,6 +248,12 @@ class SmsReceiver : BroadcastReceiver() {
                 )
             } else null
         )
+    }
+
+    private fun isAppInForeground() : Boolean{
+
+        // checks whether app is in foreground or not
+        return ProcessLifecycleOwner.get().lifecycle.currentState.isAtLeast(Lifecycle.State.STARTED)
     }
 }
 

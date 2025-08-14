@@ -150,7 +150,9 @@ fun IndividualSiteScreen(
                         )
                     }
                 },
-                addFields = {}
+                addFields = {
+                    viewModel.sendPropertyFieldMsg()
+                }
             )
         }
     }

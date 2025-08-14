@@ -13,6 +13,7 @@ data class Site(
     @PrimaryKey(autoGenerate = false)
     val id: Long,
     val name: String,
-    val contactsList: List<String>
+    val contactsList: List<String>,
+    val hasUnreadMessage : Boolean
 )
 

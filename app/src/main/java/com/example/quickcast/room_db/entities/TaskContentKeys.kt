@@ -21,7 +21,7 @@ import androidx.room.PrimaryKey
 )
 data class TaskContentKeys(
     @PrimaryKey(autoGenerate = true)
-    val formatId: Int,
+    val formatId: Int = 0,
     val siteId: Long,
     val format: List<String>
 )

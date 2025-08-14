@@ -2,28 +2,21 @@ package com.example.quickcast.viewModels
 
 import android.util.Log
 import androidx.compose.runtime.State
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.quickcast.SmsUtils.SmsCreator
 import com.example.quickcast.SmsUtils.SmsSenderWorker
-import com.example.quickcast.data_classes.MessageProperties
 import com.example.quickcast.data_classes.SelectedContacts
-import com.example.quickcast.data_classes.SmsFormats.InvitationResponse
-import com.example.quickcast.data_classes.SmsFormats.MessageContent
 import com.example.quickcast.data_classes.SmsFormats.SiteInvite
 import com.example.quickcast.data_classes.SmsFormats.SmsPackage
-import com.example.quickcast.enum_classes.SmsTypes
 import com.example.quickcast.repositories.DatabaseRepository
 import com.example.quickcast.repositories.SmsRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.util.Calendar
 
 class HomeVM(
     private val smsRepository: SmsRepository,
@@ -52,43 +45,16 @@ class HomeVM(
 
 
     /**
-     * [createSmsPackageWithNumber] creates a list<[SmsPackage] from [_selectedContacts]
-     * */
-    private fun createSmsPackageWithNumber() : List<Pair<String, SmsPackage>>{
-        val smsList = mutableListOf<Pair<String, SmsPackage>>()
-
-        selectedContacts.forEach {
-            if(it.contact != null){
-                smsList.add(
-                    Pair(
-                        it.contact.number,
-                        SmsPackage(
-                            type = SmsTypes.SITE_INVITE,
-                            message = SiteInvite(
-                                ts = Calendar.getInstance().timeInMillis,
-                                n = siteName.value,
-                                l = null
-                            )
-                        )
-                    )
-                )
-            }
-        }
-
-        return smsList
-    }
-
-
-    /**
-     *  [sendMessage] sends List<[SmsPackage]> to [SmsSenderWorker] for
+     *  [sendInvitation] sends List<[SmsPackage]> to [SmsSenderWorker] for
      *  sending messages..
      * */
-    fun sendMessage() {
-
-        // get list<SmsPackage> from _selectedContacts
-        val smsList = createSmsPackageWithNumber()
+    fun sendInvitation() {
 
         viewModelScope.launch(Dispatchers.IO + NonCancellable) {
+
+            // get List<Pair<String, SmsPackage>>
+            val smsList = SmsCreator().createSmsPackageWithNumber(selectedContacts, siteName.value, listOf())
+
             smsRepository.sendMessage(smsList)
         }
 
@@ -102,13 +68,13 @@ class HomeVM(
     }
 
     fun acceptInvitation() {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO + NonCancellable) {
             siteInviteObject.value?.let {
 
                 val smsList = SmsCreator().createSmsPackageWithNumber(true, it.first, it.second)
 
                 smsRepository.sendMessage(smsList)
-                databaseRepository.addSite(it.second)
+                databaseRepository.addSite(it.second, false)
             }
             isBottomSheetActive.value = false
         }

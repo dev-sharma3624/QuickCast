@@ -1,6 +1,7 @@
 package com.example.quickcast.SmsUtils
 
 import com.example.quickcast.data_classes.SmsFormats.InvitationResponse
+import com.example.quickcast.data_classes.SmsFormats.CreateTask
 import com.example.quickcast.data_classes.SmsFormats.SiteInvite
 import com.example.quickcast.data_classes.SmsFormats.SmsPackage
 import com.google.gson.JsonElement
@@ -21,6 +22,7 @@ class SmsPackageSerializer : JsonSerializer<SmsPackage> {
         val messageJson = when (val msg = src.message) {
             is SiteInvite -> context.serialize(msg)
             is InvitationResponse -> context.serialize(msg)
+            is CreateTask -> TODO()
         }
 
         obj.add("message", messageJson)

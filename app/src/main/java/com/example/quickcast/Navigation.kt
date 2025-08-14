@@ -118,7 +118,7 @@ fun PrimaryNavigation(
                             {
                                 if(homeVM.siteName.value != ""){
                                     homeVM.setIsSmsProcessActive()
-                                    homeVM.sendMessage()
+                                    homeVM.sendInvitation()
                                 }
                             }
                         )

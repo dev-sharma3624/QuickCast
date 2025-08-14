@@ -1,5 +1,6 @@
 package com.example.quickcast.SmsUtils
 
+import com.example.quickcast.data_classes.SmsFormats.CreateTask
 import com.example.quickcast.data_classes.SmsFormats.InvitationResponse
 import com.example.quickcast.data_classes.SmsFormats.MessageContent
 import com.example.quickcast.data_classes.SmsFormats.SiteInvite
@@ -27,7 +28,7 @@ class SmsPackageDeserializer : JsonDeserializer<SmsPackage> {
         val message: MessageContent = when (smsType) {
             SmsTypes.SITE_INVITE -> context.deserialize<SiteInvite>(messageJson, SiteInvite::class.java)
             SmsTypes.INVITATION_RESPONSE -> context.deserialize<InvitationResponse>(messageJson, InvitationResponse::class.java)
-            SmsTypes.CREATE_TASK -> TODO()
+            SmsTypes.CREATE_TASK -> context.deserialize<CreateTask>(messageJson, CreateTask::class.java)
         }
 
         return SmsPackage(smsType, message)

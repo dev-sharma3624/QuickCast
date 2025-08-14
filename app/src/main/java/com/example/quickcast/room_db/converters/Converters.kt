@@ -11,7 +11,7 @@ class Converters {
 
     @TypeConverter
     fun toContactsList(data: String): List<String> {
-        return if (data.isBlank()) emptyList() else data.split(",")
+        return if (data.isBlank() || data.isEmpty()) emptyList() else data.removePrefix(",").split(",")
     }
 
     @TypeConverter

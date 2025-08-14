@@ -39,6 +39,8 @@ class SmsSenderWorker(
 
         val smsManager = SmsManager.getDefault()
 
+        Log.d("messageList", "$messageList")
+
         messageList.forEach { smsPackagePair ->
 
             // PendingIntent that will be broadcast when message is delivered successfully
@@ -52,7 +54,11 @@ class SmsSenderWorker(
 
             // sending each message to the specific phone number contained in smsPackage with the message in json-formatted string
             // with a specified pending intent that will be broadcast when message is delivered successfully.
-            smsManager.sendTextMessage(smsPackagePair.first, null, gson.toJson(smsPackagePair.second), null, deliveredIntent)
+            try {
+                smsManager.sendTextMessage(smsPackagePair.first, null, gson.toJson(smsPackagePair.second), null, deliveredIntent)
+            }catch (e : IllegalArgumentException){
+                Log.e("sms_error", "${e.message}")
+            }
 
             Log.d("SMS_DELIVERY", "src : ${smsPackagePair.first}, content : ${smsPackagePair.second}")
         }

@@ -22,7 +22,7 @@ class SmsPackageSerializer : JsonSerializer<SmsPackage> {
         val messageJson = when (val msg = src.message) {
             is SiteInvite -> context.serialize(msg)
             is InvitationResponse -> context.serialize(msg)
-            is CreateTask -> TODO()
+            is CreateTask -> context.serialize(msg)
         }
 
         obj.add("message", messageJson)

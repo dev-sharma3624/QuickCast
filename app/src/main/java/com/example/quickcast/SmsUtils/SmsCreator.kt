@@ -1,5 +1,6 @@
 package com.example.quickcast.SmsUtils
 
+import android.util.Log
 import com.example.quickcast.data_classes.MessageProperties
 import com.example.quickcast.data_classes.SelectedContacts
 import com.example.quickcast.data_classes.SmsFormats.CreateTask
@@ -64,10 +65,12 @@ class SmsCreator {
             ))
         }
 
+
         site.contactsList.forEach {
+            Log.d("Contacts List", it.removePrefix("+91"))
             smsList.add(
                 Pair(
-                    it,
+                    it.removePrefix("+91"),
                     SmsPackage(
                         type = SmsTypes.CREATE_TASK,
                         message = CreateTask(sendableMessagePropertyList)

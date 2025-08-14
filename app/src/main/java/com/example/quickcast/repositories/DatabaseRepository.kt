@@ -36,7 +36,19 @@ class DatabaseRepository(
             smsType = SmsTypes.INVITATION_RESPONSE,
             content = contentString
         ))
-        siteDao.changeUnreadMessageStatus(siteId, b)
+        val contactsList = siteDao.fetchContactsListFromSiteId(siteId)
+
+        if(contactsList.isEmpty()){
+            siteDao.updateSiteForInvitationResponse(siteId, b, listOf(phoneNumber))
+        }else{
+
+            val newList = mutableListOf<String>()
+            contactsList.forEach {
+                newList.add(it)
+            }
+            newList.add(phoneNumber)
+            siteDao.updateSiteForInvitationResponse(siteId, b, newList)
+        }
     }
 
     suspend fun getSiteList() = siteDao.getAllSites()

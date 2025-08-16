@@ -23,6 +23,7 @@ import kotlinx.coroutines.launch
 
 class SiteScreenVM(
     private val databaseRepository: DatabaseRepository,
+    private val smsCreator: SmsCreator,
     private val smsRepository: SmsRepository
 ) : ViewModel() {
 
@@ -51,7 +52,7 @@ class SiteScreenVM(
     fun sendPropertyFieldMsg(){
         viewModelScope.launch(Dispatchers.IO + NonCancellable) {
             val list = propertyList.filter { it.name.isNotBlank() && (it.value != null && it.value > 0) }
-            val msgPairList = SmsCreator().createSmsPackageWithNumber(list, site!!)
+            val msgPairList = smsCreator.createSmsPackageWithNumber(list, site!!)
             smsRepository.sendMessage(msgPairList)
         }
     }

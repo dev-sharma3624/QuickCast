@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
 
 class HomeVM(
     private val smsRepository: SmsRepository,
-    private val databaseRepository: DatabaseRepository
+    private val smsCreator: SmsCreator
 ) : ViewModel() {
     // list of contacts selected for creation of a new site/group
     private val _selectedContacts = mutableStateListOf(SelectedContacts())
@@ -53,7 +53,7 @@ class HomeVM(
         viewModelScope.launch(Dispatchers.IO + NonCancellable) {
 
             // get List<Pair<String, SmsPackage>>
-            val smsList = SmsCreator().createSmsPackageWithNumber(selectedContacts, siteName.value, listOf())
+            val smsList = smsCreator.createSmsPackageWithNumber(selectedContacts, siteName.value, listOf())
 
             smsRepository.sendMessage(smsList)
         }
@@ -71,10 +71,9 @@ class HomeVM(
         viewModelScope.launch(Dispatchers.IO + NonCancellable) {
             siteInviteObject.value?.let {
 
-                val smsList = SmsCreator().createSmsPackageWithNumber(true, it.first, it.second)
+                val smsList = smsCreator.createSmsPackageWithNumber(true, it.first, it.second)
 
                 smsRepository.sendMessage(smsList)
-                databaseRepository.addSite(it.second, false)
             }
             isBottomSheetActive.value = false
         }

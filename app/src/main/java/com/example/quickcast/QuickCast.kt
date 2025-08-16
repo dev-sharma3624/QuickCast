@@ -3,6 +3,7 @@ package com.example.quickcast
 import android.app.Application
 import androidx.lifecycle.ProcessLifecycleOwner
 import androidx.room.Room
+import com.example.quickcast.SmsUtils.SmsCreator
 import com.example.quickcast.repositories.DatabaseRepository
 import com.example.quickcast.repositories.SmsRepository
 import com.example.quickcast.room_db.AppDb
@@ -11,6 +12,7 @@ import com.example.quickcast.room_db.background_workers.InvitationResponseBgWork
 import com.example.quickcast.services.NotificationService
 import com.example.quickcast.viewModels.HomeVM
 import com.example.quickcast.viewModels.SiteScreenVM
+import org.koin.android.ext.android.get
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.workmanager.dsl.worker
 import org.koin.androidx.workmanager.koin.workManagerFactory
@@ -55,8 +57,9 @@ class QuickCast : Application() {
             workManagerFactory()
             modules(
                 databaseModule,
+                module { factory { SmsCreator(get()) } },
                 module { viewModel { HomeVM(get(), get()) } },
-                module { viewModel { SiteScreenVM(get(), get()) } }
+                module { viewModel { SiteScreenVM(get(), get(), get()) } }
             )
         }
 

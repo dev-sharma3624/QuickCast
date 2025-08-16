@@ -56,7 +56,7 @@ class CreateTaskBgWorker(
                 } else null
             )
 
-            dbRepo.createTaskResponse(siteId, format, phoneNumber)
+            dbRepo.messagePropertyAddition(siteId, format, phoneNumber)
 
 
             return  Result.success()

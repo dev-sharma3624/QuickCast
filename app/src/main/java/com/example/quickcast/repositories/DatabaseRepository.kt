@@ -56,7 +56,7 @@ class DatabaseRepository(
         }
     }
 
-    suspend fun createTaskResponse(siteId: Long, format: String, phoneNumber: String){
+    suspend fun messagePropertyAddition(siteId: Long, format: String, phoneNumber: String){
         val formatId = formatDao.insertFormat(TaskContentKeys(
             siteId = siteId,
             format = format

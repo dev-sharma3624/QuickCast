@@ -45,6 +45,7 @@ data class InvitationResponse(
 
 @Parcelize
 data class CreateTask(
+    val siteId : Long,
     val l : List<SendableMessageProperty>
 ) : MessageContent()
 

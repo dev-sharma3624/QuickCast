@@ -5,7 +5,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.example.quickcast.repositories.DatabaseRepository
 
-class DbBackgroundWorker(
+class InvitationResponseBgWorker(
     appContext : Context,
     params : WorkerParameters,
     private val dbRepo : DatabaseRepository

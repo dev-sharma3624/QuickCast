@@ -1,6 +1,7 @@
 package com.example.quickcast.room_db.converters
 
 import androidx.room.TypeConverter
+import com.example.quickcast.data_classes.SmsFormats.SendableMessageProperty
 import com.example.quickcast.enum_classes.SmsTypes
 
 class Converters {

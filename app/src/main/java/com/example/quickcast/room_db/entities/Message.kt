@@ -30,9 +30,9 @@ import com.example.quickcast.enum_classes.SmsTypes
 )
 data class Message(
     @PrimaryKey(autoGenerate = true)
-    val msgId: Int = 0,
+    val msgId: Long = 0,
     val siteId: Long,
-    val formatId: Int?,
+    val formatId: Long?,
     val sentBy: String,
     val smsType: SmsTypes,
     val content: String

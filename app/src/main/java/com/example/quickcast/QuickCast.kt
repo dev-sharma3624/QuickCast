@@ -6,7 +6,8 @@ import androidx.room.Room
 import com.example.quickcast.repositories.DatabaseRepository
 import com.example.quickcast.repositories.SmsRepository
 import com.example.quickcast.room_db.AppDb
-import com.example.quickcast.room_db.background_workers.DbBackgroundWorker
+import com.example.quickcast.room_db.background_workers.CreateTaskBgWorker
+import com.example.quickcast.room_db.background_workers.InvitationResponseBgWorker
 import com.example.quickcast.services.NotificationService
 import com.example.quickcast.viewModels.HomeVM
 import com.example.quickcast.viewModels.SiteScreenVM
@@ -38,11 +39,13 @@ class QuickCast : Application() {
 
             single { get<AppDb>().siteDao() }
             single { get<AppDb>().messageDao() }
+            single { get<AppDb>().formatDao() }
 
-            single { DatabaseRepository(get(), get()) }
+            single { DatabaseRepository(get(), get(), get()) }
             single { SmsRepository(this@QuickCast) }
 
-            worker { DbBackgroundWorker(androidContext(), get(), get()) }
+            worker { InvitationResponseBgWorker(androidContext(), get(), get()) }
+            worker { CreateTaskBgWorker(androidContext(), get(), get()) }
 
         }
 

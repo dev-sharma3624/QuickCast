@@ -73,7 +73,7 @@ class SmsCreator {
                     it.removePrefix("+91"),
                     SmsPackage(
                         type = SmsTypes.CREATE_TASK,
-                        message = CreateTask(sendableMessagePropertyList)
+                        message = CreateTask(site.id, sendableMessagePropertyList)
                     )
                 )
             )

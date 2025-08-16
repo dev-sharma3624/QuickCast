@@ -5,6 +5,7 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.example.quickcast.room_db.converters.Converters
 import com.example.quickcast.room_db.dao.MessageDao
+import com.example.quickcast.room_db.dao.MsgFormatDao
 import com.example.quickcast.room_db.dao.SiteDao
 import com.example.quickcast.room_db.entities.Message
 import com.example.quickcast.room_db.entities.Site
@@ -33,4 +34,5 @@ import com.example.quickcast.room_db.entities.TaskContentKeys
 abstract class AppDb : RoomDatabase() {
     abstract fun siteDao(): SiteDao
     abstract fun messageDao(): MessageDao
+    abstract fun formatDao() : MsgFormatDao
 }

@@ -59,7 +59,16 @@ fun PrimaryNavigation(
     NavHost(navController = navHostController, startDestination = BottomNavigationItems.Home.name) {
 
         composable(route = BottomNavigationItems.Home.name){
-            HomeScreen(siteScreenVM, paddingValues, navHostController)
+            HomeScreen(siteScreenVM, paddingValues, navHostController){
+                fabData(
+                    Pair(
+                        Icons.Default.Add,
+                        {
+                            navHostController.navigate(OtherScreens.ADD_SITE_SCREEN_FIRST.name)
+                        }
+                    )
+                )
+            }
         }
 
         composable(route = BottomNavigationItems.Notifications.name){

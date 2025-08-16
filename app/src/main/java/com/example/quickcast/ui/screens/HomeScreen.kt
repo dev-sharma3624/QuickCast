@@ -16,6 +16,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,7 +40,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun HomeScreenPreview(){
     Scaffold {
-        HomeScreen(koinViewModel(), it, rememberNavController())
+        HomeScreen(koinViewModel(), it, rememberNavController()){}
     }
 }
 
@@ -53,8 +54,13 @@ fun HomeScreenPreview(){
 fun HomeScreen(
     siteScreenVM: SiteScreenVM,
     paddingValues : PaddingValues,
-    navHostController: NavHostController
+    navHostController: NavHostController,
+    fabData : () -> Unit
 ){
+    LaunchedEffect(Unit) {
+        fabData()
+    }
+
     var selectedNavigationRailItem by remember { mutableStateOf(NavigationRailItems.SITES) }
 
     Row(

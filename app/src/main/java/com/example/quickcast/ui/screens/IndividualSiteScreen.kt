@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
@@ -24,14 +25,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.quickcast.data_classes.MessageProperties
 import com.example.quickcast.enum_classes.MessagePropertyTypes
+import com.example.quickcast.enum_classes.SmsTypes
 import com.example.quickcast.room_db.dto.MessageDTO
+import com.example.quickcast.services.ContactsService
 import com.example.quickcast.ui.temporary_components.UpdatesMenu
 import com.example.quickcast.ui.theme.individualSiteBg
 import com.example.quickcast.viewModels.SiteScreenVM
@@ -53,6 +58,10 @@ fun IndividualSiteScreen(
     setup : (@Composable () -> Unit) -> Unit,
     backNavigationAndCleanUp : () -> Unit
 ){
+
+    val context = LocalContext.current
+
+    val contactsList = remember { ContactsService().getContactsList(context) }
 
     LaunchedEffect(Unit) {
         setup{
@@ -176,11 +185,28 @@ fun IndividualSiteScreen(
                 items(
                     items = messageList,
                     key = { it.msgId }
-                ){
-                    IndividualMessage(
-                        message = it,
-                        design = sentByMeShape
-                    )
+                ){ messageDTO->
+
+                    when(messageDTO.smsType){
+
+                        SmsTypes.SITE_INVITE -> {
+                            IndividualMessage(
+                                message = messageDTO,
+                                design = sentByMeShape
+                            )
+                        }
+                        SmsTypes.INVITATION_RESPONSE -> {
+                            InviteResponseMessage(
+                                text = messageDTO.content
+                            )
+                        }
+                        SmsTypes.CREATE_TASK -> {
+                            IndividualMessage(
+                                message = messageDTO,
+                                design = sentByMeShape
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -197,6 +223,24 @@ fun MemberUpdateMessage(){
     Row {
         Text(
             text = ""
+        )
+    }
+}
+
+@Composable
+fun InviteResponseMessage(text: String) {
+    Row(
+        modifier = Modifier.fillMaxWidth()
+            .padding(horizontal = 8.dp),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = text,
+            modifier = Modifier.background(
+                Color.LightGray,
+                shape = RoundedCornerShape(50)
+            )
+                .padding(horizontal = 12.dp)
         )
     }
 }

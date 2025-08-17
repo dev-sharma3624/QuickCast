@@ -2,13 +2,13 @@ package com.example.quickcast.ui.screens
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -18,11 +18,10 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -37,14 +36,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.quickcast.data_classes.MessageProperties
-import com.example.quickcast.data_classes.SmsFormats.SendableMessageProperty
 import com.example.quickcast.enum_classes.MessagePropertyTypes
 import com.example.quickcast.enum_classes.SmsTypes
-import com.example.quickcast.ui.temporary_components.UpdatesMenu
+import com.example.quickcast.ui.temporary_components.NewTaskMenu
 import com.example.quickcast.ui.theme.individualSiteBg
 import com.example.quickcast.viewModels.SiteScreenVM
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 
 /*
 @Preview(showBackground = true)
@@ -117,56 +113,79 @@ fun IndividualSiteScreen(
             onDismissRequest = { viewModel.showDialog = false}
         ) {
 
-            UpdatesMenu(
-                list = viewModel.propertyList,
-                nameFieldChange = { id, str ->
-                    viewModel.propertyList[id] = MessageProperties(
-                        id = id,
-                        name = str,
-                        value = viewModel.propertyList[id].value,
-                        type = viewModel.propertyList[id].type
+            Column(
+                modifier = Modifier.background(Color.White, RoundedCornerShape(5))
+                    .height(512.dp)
+                    .padding(vertical = 32.dp, horizontal = 8.dp)
+            ) {
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    Text(
+                        text = "New task"
                     )
-                },
-                valueFieldChange = { id, value ->
-                    viewModel.propertyList[id] = MessageProperties(
-                        id = id,
-                        name = viewModel.propertyList[id].name,
-                        value = value,
-                        type = viewModel.propertyList[id].type
+
+                    Text(
+                        text = "Update"
                     )
-                },
-                onClickCount = { id ->
-                    viewModel.propertyList[id] = MessageProperties(
-                        id = id,
-                        name = viewModel.propertyList[id].name,
-                        value = viewModel.propertyList[id].value,
-                        type = MessagePropertyTypes.COUNT
-                    )
-                },
-                onClickLimit = { id ->
-                    viewModel.propertyList[id] = MessageProperties(
-                        id = id,
-                        name = viewModel.propertyList[id].name,
-                        value = viewModel.propertyList[id].value,
-                        type = MessagePropertyTypes.LIMIT
-                    )
-                },
-                addMoreFields = {
-                    val f = viewModel.propertyList.size
-                    for (i in f..f + 4) {
-                        viewModel.propertyList.add(
-                            MessageProperties(
-                                id = i
-                            )
+                }
+
+                HorizontalDivider(color = Color.Black, modifier = Modifier.padding(vertical = 16.dp))
+
+                NewTaskMenu(
+                    list = viewModel.propertyList,
+                    nameFieldChange = { id, str ->
+                        viewModel.propertyList[id] = MessageProperties(
+                            id = id,
+                            name = str,
+                            value = viewModel.propertyList[id].value,
+                            type = viewModel.propertyList[id].type
                         )
-                    }
-                },
-                addFields = {
-                    viewModel.sendPropertyFieldMsg(taskName)
-                },
-                taskName = taskName,
-                onTaskNameChange = { taskName = it }
-            )
+                    },
+                    valueFieldChange = { id, value ->
+                        viewModel.propertyList[id] = MessageProperties(
+                            id = id,
+                            name = viewModel.propertyList[id].name,
+                            value = value,
+                            type = viewModel.propertyList[id].type
+                        )
+                    },
+                    onClickCount = { id ->
+                        viewModel.propertyList[id] = MessageProperties(
+                            id = id,
+                            name = viewModel.propertyList[id].name,
+                            value = viewModel.propertyList[id].value,
+                            type = MessagePropertyTypes.COUNT
+                        )
+                    },
+                    onClickLimit = { id ->
+                        viewModel.propertyList[id] = MessageProperties(
+                            id = id,
+                            name = viewModel.propertyList[id].name,
+                            value = viewModel.propertyList[id].value,
+                            type = MessagePropertyTypes.LIMIT
+                        )
+                    },
+                    addMoreFields = {
+                        val f = viewModel.propertyList.size
+                        for (i in f..f + 4) {
+                            viewModel.propertyList.add(
+                                MessageProperties(
+                                    id = i
+                                )
+                            )
+                        }
+                    },
+                    addFields = {
+                        viewModel.sendPropertyFieldMsg(taskName)
+                    },
+                    taskName = taskName,
+                    onTaskNameChange = { taskName = it }
+                )
+
+            }
 
         }
 

@@ -1,6 +1,5 @@
 package com.example.quickcast.ui.temporary_components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -8,10 +7,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -36,7 +35,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.input.pointer.motionEventSpy
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -47,7 +45,7 @@ import com.example.quickcast.data_classes.MessageProperties
 import com.example.quickcast.enum_classes.MessagePropertyTypes
 
 /**
- * [UpdatesMenu] defines the layout of the Menu where user can set message properties to be sent and recieved.
+ * [NewTaskMenu] defines the layout of the Menu where user can set message properties to be sent and recieved.
  *
  * @param list the list of all message properties
  *
@@ -63,7 +61,7 @@ import com.example.quickcast.enum_classes.MessagePropertyTypes
  * */
 
 @Composable
-fun UpdatesMenu(
+fun NewTaskMenu(
     list: List<MessageProperties>,
     taskName : String,
     onTaskNameChange : (String) -> Unit,
@@ -76,11 +74,8 @@ fun UpdatesMenu(
 ) {
 
     Column(
-        modifier = Modifier.background(Color.White, RoundedCornerShape(5))
-            .height(512.dp)
-            .padding(vertical = 32.dp, horizontal = 8.dp)
+        modifier = Modifier.fillMaxSize()
     ) {
-
         Text(
             text = "Task Name",
             modifier = Modifier.padding(horizontal = 4.dp)
@@ -138,7 +133,7 @@ fun UpdatesMenu(
             // property fields list
             items(list, key = {it.id}){ item ->
 
-                UpdatesMenuItem(
+                NewTaskMenuItem(
                     value = item,
                     nameFieldChange = { id, newName -> nameFieldChange(id, newName)},
                     valueFieldChange = { id, newValue ->
@@ -174,13 +169,10 @@ fun UpdatesMenu(
             }
         }
     }
-
-
-
 }
 
 /**
- * [UpdatesMenuItem] defines the layout af an individual row in the updates menu.
+ * [NewTaskMenuItem] defines the layout af an individual row in the updates menu.
  *
  * @param value contains latest value for name, value and type of an individual [MessageProperties]
  *
@@ -194,7 +186,7 @@ fun UpdatesMenu(
  * */
 
 @Composable
-fun UpdatesMenuItem(
+fun NewTaskMenuItem(
     value : MessageProperties,
     nameFieldChange : (Int, String) -> Unit,
     valueFieldChange : (Int, String) -> Unit,

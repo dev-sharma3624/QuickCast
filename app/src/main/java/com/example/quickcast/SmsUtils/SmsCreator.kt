@@ -12,7 +12,6 @@ import com.example.quickcast.enum_classes.SmsTypes
 import com.example.quickcast.repositories.DatabaseRepository
 import com.example.quickcast.room_db.entities.Site
 import com.google.gson.Gson
-import com.google.gson.GsonBuilder
 import java.util.Calendar
 
 class SmsCreator(
@@ -67,7 +66,7 @@ class SmsCreator(
         return listOf(Pair(phoneNumber, smsPackage))
     }
 
-    suspend fun createSmsPackageWithNumber(messageProperties : List<MessageProperties>, site : Site) : List<Pair<String, SmsPackage>>{
+    suspend fun createSmsPackageWithNumber(messageProperties : List<MessageProperties>, site : Site, taskName : String) : List<Pair<String, SmsPackage>>{
 
         val smsList = mutableListOf<Pair<String, SmsPackage>>()
 
@@ -81,11 +80,11 @@ class SmsCreator(
             ))
         }
 
-        val format = Gson().toJson(sendableMessagePropertyList)
+        val format = Gson().toJson(CreateTask(site.id, taskName, sendableMessagePropertyList))
 
         databaseRepository.messagePropertyAddition(
             siteId = site.id,
-            format = format,
+            taskString = format,
             phoneNumber = "SELF"
         )
 
@@ -97,7 +96,7 @@ class SmsCreator(
                     it.removePrefix("+91"),
                     SmsPackage(
                         type = SmsTypes.CREATE_TASK,
-                        message = CreateTask(site.id, sendableMessagePropertyList)
+                        message = CreateTask(site.id, taskName, sendableMessagePropertyList)
                     )
                 )
             )

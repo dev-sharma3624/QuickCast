@@ -22,7 +22,7 @@ class CreateTaskBgWorker(
 
         val siteId = inputData.getLong("site_Id", 0L)
         val isAppInForeground = inputData.getBoolean("is_App_In_Foreground", false)
-        val format = inputData.getString("format") ?: ""
+        val task = inputData.getString("task") ?: ""
         val phoneNumber = inputData.getString("phone_Number") ?: ""
 
         if(siteId == 0L){
@@ -56,7 +56,7 @@ class CreateTaskBgWorker(
                 } else null
             )
 
-            dbRepo.messagePropertyAddition(siteId, format, phoneNumber)
+            dbRepo.messagePropertyAddition(siteId, task, phoneNumber)
 
 
             return  Result.success()

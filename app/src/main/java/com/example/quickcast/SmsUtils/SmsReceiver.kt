@@ -18,7 +18,6 @@ import com.example.quickcast.MainActivity
 import com.example.quickcast.data_classes.SmsFormats.InvitationResponse
 import com.example.quickcast.data_classes.SmsFormats.CreateTask
 import com.example.quickcast.data_classes.SmsFormats.MessageContent
-import com.example.quickcast.data_classes.SmsFormats.SendableMessageProperty
 import com.example.quickcast.data_classes.SmsFormats.SiteInvite
 import com.example.quickcast.data_classes.SmsFormats.SmsPackage
 import com.example.quickcast.enum_classes.SmsTypes
@@ -117,7 +116,7 @@ class SmsReceiver : BroadcastReceiver() {
             is InvitationResponse -> inviteResponse(context, phoneNumber, receivedMsg.message)
             is CreateTask -> {
                 // Todo: new task received notification, insertion to db, changing unread status
-                createTaskResponse(context, receivedMsg.message.siteId, receivedMsg.message.l, phoneNumber)
+                createTaskResponse(context, receivedMsg.message.siteId, receivedMsg.message, phoneNumber)
             }
         }
 
@@ -127,16 +126,16 @@ class SmsReceiver : BroadcastReceiver() {
     private fun createTaskResponse(
         context: Context,
         siteId: Long,
-        l: List<SendableMessageProperty>,
+        task: CreateTask,
         phoneNumber: String
     ) {
 
-        Log.d("json_format_list", gson.toJson(l))
+        Log.d("json_format_list", gson.toJson(task))
 
         val inputData = workDataOf(
             "site_Id" to siteId,
             "is_App_In_Foreground" to isAppInForeground(),
-            "format" to gson.toJson(l),
+            "task" to gson.toJson(task),
             "phone_Number" to phoneNumber
         )
 

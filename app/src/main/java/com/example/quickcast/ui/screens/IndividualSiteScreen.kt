@@ -2,6 +2,7 @@ package com.example.quickcast.ui.screens
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,11 +21,16 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -104,13 +110,16 @@ fun IndividualSiteScreen(
         }
     }
 
+    var taskName by rememberSaveable { mutableStateOf("") }
+
     if(viewModel.showDialog){
         BasicAlertDialog(
             onDismissRequest = { viewModel.showDialog = false}
         ) {
+
             UpdatesMenu(
                 list = viewModel.propertyList,
-                nameFieldChange = {id, str ->
+                nameFieldChange = { id, str ->
                     viewModel.propertyList[id] = MessageProperties(
                         id = id,
                         name = str,
@@ -118,7 +127,7 @@ fun IndividualSiteScreen(
                         type = viewModel.propertyList[id].type
                     )
                 },
-                valueFieldChange = {id, value ->
+                valueFieldChange = { id, value ->
                     viewModel.propertyList[id] = MessageProperties(
                         id = id,
                         name = viewModel.propertyList[id].name,
@@ -126,7 +135,7 @@ fun IndividualSiteScreen(
                         type = viewModel.propertyList[id].type
                     )
                 },
-                onClickCount = {id ->
+                onClickCount = { id ->
                     viewModel.propertyList[id] = MessageProperties(
                         id = id,
                         name = viewModel.propertyList[id].name,
@@ -134,7 +143,7 @@ fun IndividualSiteScreen(
                         type = MessagePropertyTypes.COUNT
                     )
                 },
-                onClickLimit = {id ->
+                onClickLimit = { id ->
                     viewModel.propertyList[id] = MessageProperties(
                         id = id,
                         name = viewModel.propertyList[id].name,
@@ -144,7 +153,7 @@ fun IndividualSiteScreen(
                 },
                 addMoreFields = {
                     val f = viewModel.propertyList.size
-                    for(i in f..f+4){
+                    for (i in f..f + 4) {
                         viewModel.propertyList.add(
                             MessageProperties(
                                 id = i
@@ -153,10 +162,14 @@ fun IndividualSiteScreen(
                     }
                 },
                 addFields = {
-                    viewModel.sendPropertyFieldMsg()
-                }
+                    viewModel.sendPropertyFieldMsg(taskName)
+                },
+                taskName = taskName,
+                onTaskNameChange = { taskName = it }
             )
+
         }
+
     }
 
     Column(

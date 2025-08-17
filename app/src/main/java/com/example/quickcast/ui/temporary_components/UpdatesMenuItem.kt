@@ -65,6 +65,8 @@ import com.example.quickcast.enum_classes.MessagePropertyTypes
 @Composable
 fun UpdatesMenu(
     list: List<MessageProperties>,
+    taskName : String,
+    onTaskNameChange : (String) -> Unit,
     nameFieldChange : (Int, String) -> Unit,
     valueFieldChange : (Int, Int) -> Unit,
     onClickCount : (Int) -> Unit,
@@ -78,6 +80,29 @@ fun UpdatesMenu(
             .height(512.dp)
             .padding(vertical = 32.dp, horizontal = 8.dp)
     ) {
+
+        Text(
+            text = "Task Name",
+            modifier = Modifier.padding(horizontal = 4.dp)
+        )
+
+
+        TextField(
+            value = taskName,
+            onValueChange = { onTaskNameChange(it) },
+            modifier = Modifier.fillMaxWidth()
+                .padding(horizontal = 4.dp, vertical = 12.dp)
+                .border(1.dp, Color.Black, RoundedCornerShape(10)),
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.White,
+                unfocusedContainerColor = Color.White,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent,
+            ),
+            placeholder = {
+                Text("Enter task name")
+            }
+        )
 
         // Header Row
         Row {

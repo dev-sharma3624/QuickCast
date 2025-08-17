@@ -49,10 +49,10 @@ class SiteScreenVM(
         }
     }
 
-    fun sendPropertyFieldMsg(){
+    fun sendPropertyFieldMsg(taskName : String){
         viewModelScope.launch(Dispatchers.IO + NonCancellable) {
             val list = propertyList.filter { it.name.isNotBlank() && (it.value != null && it.value > 0) }
-            val msgPairList = smsCreator.createSmsPackageWithNumber(list, site!!)
+            val msgPairList = smsCreator.createSmsPackageWithNumber(list, site!!, taskName)
             smsRepository.sendMessage(msgPairList)
         }
     }

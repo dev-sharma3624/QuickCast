@@ -1,9 +1,8 @@
 package com.example.quickcast.repositories
 
 import android.util.Log
-import com.example.quickcast.data_classes.SmsFormats.SendableMessageProperty
+import com.example.quickcast.data_classes.SmsFormats.CreateTask
 import com.example.quickcast.data_classes.SmsFormats.SiteInvite
-import com.example.quickcast.enum_classes.MessagePropertyTypes
 import com.example.quickcast.enum_classes.SmsTypes
 import com.example.quickcast.room_db.dao.MessageDao
 import com.example.quickcast.room_db.dao.MsgFormatDao
@@ -13,7 +12,6 @@ import com.example.quickcast.room_db.entities.Message
 import com.example.quickcast.room_db.entities.Site
 import com.example.quickcast.room_db.entities.TaskContentKeys
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.flow.Flow
 
 class DatabaseRepository(
@@ -61,21 +59,23 @@ class DatabaseRepository(
         }
     }
 
-    suspend fun messagePropertyAddition(siteId: Long, format: String, phoneNumber: String){
+    suspend fun messagePropertyAddition(siteId: Long, taskString: String, phoneNumber: String){
+
+        val gson = Gson()
+
+        val taskObject : CreateTask = gson.fromJson(taskString, CreateTask::class.java)
+
+        Log.d("taskObject", "$taskObject")
 
         val formatId = formatDao.insertFormat(TaskContentKeys(
             siteId = siteId,
-            format = format
+            format = gson.toJson(taskObject.l)
         ))
 
-        val formatList : List<SendableMessageProperty> = Gson().fromJson(format, object : TypeToken<List<SendableMessageProperty>>() {}.type)
-
-        Log.d("formatList", "$formatList")
-
-        var messageString = "New Task:\n"
+        var messageString = "${taskObject.taskName}\n"
 
 
-        formatList.forEach {
+        taskObject.l.forEach {
             messageString = messageString.plus(
                 "${it.k} : ${it.v} : ${it.t.name}\n"
             )

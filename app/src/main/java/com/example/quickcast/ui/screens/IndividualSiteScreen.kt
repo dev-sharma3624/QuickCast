@@ -16,30 +16,29 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.BasicAlertDialog
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.example.quickcast.data_classes.MessageProperties
+import com.example.quickcast.data_classes.SmsFormats.SendableMessageProperty
 import com.example.quickcast.enum_classes.MessagePropertyTypes
 import com.example.quickcast.enum_classes.SmsTypes
-import com.example.quickcast.room_db.dto.MessageDTO
-import com.example.quickcast.services.ContactsService
 import com.example.quickcast.ui.temporary_components.UpdatesMenu
 import com.example.quickcast.ui.theme.individualSiteBg
 import com.example.quickcast.viewModels.SiteScreenVM
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 /*
 @Preview(showBackground = true)
@@ -58,10 +57,6 @@ fun IndividualSiteScreen(
     setup : (@Composable () -> Unit) -> Unit,
     backNavigationAndCleanUp : () -> Unit
 ){
-
-    val context = LocalContext.current
-
-    val contactsList = remember { ContactsService().getContactsList(context) }
 
     LaunchedEffect(Unit) {
         setup{
@@ -101,14 +96,12 @@ fun IndividualSiteScreen(
 
     val messageList by viewModel.messageList.collectAsState(emptyList())
 
-    val sentByMeShape : Pair<BubbleShape, Color> = Pair(BubbleShape(true), Color.Green)
-    val sentByOthersShape : Pair<BubbleShape, Color> = Pair(BubbleShape(false), Color.DarkGray)
-
-    val shapeDecider : (Boolean) -> Pair<BubbleShape, Color> = { isSentByMe ->
-        if(isSentByMe)
-            sentByMeShape
-        else
-            sentByOthersShape
+    val colorDecider : (SmsTypes) -> Color = { smsType ->
+         when(smsType){
+            SmsTypes.SITE_INVITE -> Color.Unspecified
+            SmsTypes.INVITATION_RESPONSE -> Color.LightGray
+            SmsTypes.CREATE_TASK -> Color(0xFF205E22)
+        }
     }
 
     if(viewModel.showDialog){
@@ -187,25 +180,32 @@ fun IndividualSiteScreen(
                     key = { it.msgId }
                 ){ messageDTO->
 
-                    when(messageDTO.smsType){
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = if(messageDTO.sentBy == "SELF") Arrangement.End else Arrangement.Start
+                    ){
 
-                        SmsTypes.SITE_INVITE -> {
-                            IndividualMessage(
-                                message = messageDTO,
-                                design = sentByMeShape
-                            )
+                        when(messageDTO.smsType){
+
+                            SmsTypes.SITE_INVITE -> {
+                                IndividualMessage(
+                                    message = "",
+                                    design = Pair(BubbleShape(messageDTO.sentBy == "SELF"), colorDecider(messageDTO.smsType))
+                                )
+                            }
+                            SmsTypes.INVITATION_RESPONSE -> {
+                                InviteResponseMessage(
+                                    text = messageDTO.content
+                                )
+                            }
+                            SmsTypes.CREATE_TASK -> {
+                                IndividualMessage(
+                                    message = messageDTO.content,
+                                    design = Pair(BubbleShape(messageDTO.sentBy == "SELF"), colorDecider(messageDTO.smsType))
+                                )
+                            }
                         }
-                        SmsTypes.INVITATION_RESPONSE -> {
-                            InviteResponseMessage(
-                                text = messageDTO.content
-                            )
-                        }
-                        SmsTypes.CREATE_TASK -> {
-                            IndividualMessage(
-                                message = messageDTO,
-                                design = sentByMeShape
-                            )
-                        }
+
                     }
                 }
             }
@@ -247,13 +247,12 @@ fun InviteResponseMessage(text: String) {
 
 @Composable
 fun IndividualMessage(
-    message : MessageDTO,
+    message: String,
     design: Pair<BubbleShape, Color>
 ) {
 
     Row(
         modifier = Modifier
-            .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
         Box(
@@ -262,7 +261,7 @@ fun IndividualMessage(
                 .background(design.second)
         ){
             Text(
-                text = message.content,
+                text = message,
                 color = Color.White,
                 modifier = Modifier.padding(16.dp)
             )

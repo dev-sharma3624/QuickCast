@@ -1,6 +1,9 @@
 package com.example.quickcast.repositories
 
+import android.util.Log
+import com.example.quickcast.data_classes.SmsFormats.SendableMessageProperty
 import com.example.quickcast.data_classes.SmsFormats.SiteInvite
+import com.example.quickcast.enum_classes.MessagePropertyTypes
 import com.example.quickcast.enum_classes.SmsTypes
 import com.example.quickcast.room_db.dao.MessageDao
 import com.example.quickcast.room_db.dao.MsgFormatDao
@@ -9,6 +12,8 @@ import com.example.quickcast.room_db.dto.MessageDTO
 import com.example.quickcast.room_db.entities.Message
 import com.example.quickcast.room_db.entities.Site
 import com.example.quickcast.room_db.entities.TaskContentKeys
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.flow.Flow
 
 class DatabaseRepository(
@@ -57,16 +62,32 @@ class DatabaseRepository(
     }
 
     suspend fun messagePropertyAddition(siteId: Long, format: String, phoneNumber: String){
+
         val formatId = formatDao.insertFormat(TaskContentKeys(
             siteId = siteId,
             format = format
         ))
+
+        val formatList : List<SendableMessageProperty> = Gson().fromJson(format, object : TypeToken<List<SendableMessageProperty>>() {}.type)
+
+        Log.d("formatList", "$formatList")
+
+        var messageString = "New Task:\n"
+
+
+        formatList.forEach {
+            messageString = messageString.plus(
+                "${it.k} : ${it.v} : ${it.t.name}\n"
+            )
+            Log.d("after addition", messageString)
+        }
+
         messageDao.insert(Message(
             siteId = siteId,
             formatId = formatId,
             sentBy = phoneNumber,
             smsType = SmsTypes.CREATE_TASK,
-            content = ""
+            content = messageString
         ))
         siteDao.updateSiteUnreadStatus(siteId, true)
     }

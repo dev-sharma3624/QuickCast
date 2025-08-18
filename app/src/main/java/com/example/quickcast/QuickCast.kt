@@ -9,6 +9,7 @@ import com.example.quickcast.repositories.SmsRepository
 import com.example.quickcast.room_db.AppDb
 import com.example.quickcast.room_db.background_workers.CreateTaskBgWorker
 import com.example.quickcast.room_db.background_workers.InvitationResponseBgWorker
+import com.example.quickcast.room_db.background_workers.TaskUpdateBgWorker
 import com.example.quickcast.services.NotificationService
 import com.example.quickcast.viewModels.HomeVM
 import com.example.quickcast.viewModels.SiteScreenVM
@@ -48,6 +49,7 @@ class QuickCast : Application() {
 
             worker { InvitationResponseBgWorker(androidContext(), get(), get()) }
             worker { CreateTaskBgWorker(androidContext(), get(), get()) }
+            worker { TaskUpdateBgWorker(androidContext(), get(), get()) }
 
         }
 

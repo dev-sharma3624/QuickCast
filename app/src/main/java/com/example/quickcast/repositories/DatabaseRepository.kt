@@ -105,4 +105,8 @@ class DatabaseRepository(
         )
     }
 
+    suspend fun getSiteIdFromFormatId(formatId: Long): Long {
+        return formatDao.getSiteIdFromFormat(formatId)
+    }
+
 }

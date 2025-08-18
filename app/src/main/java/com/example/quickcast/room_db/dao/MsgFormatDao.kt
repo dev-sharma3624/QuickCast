@@ -15,4 +15,7 @@ interface MsgFormatDao {
     @Query("SELECT * FROM task_content_keys_table WHERE siteId == :siteId")
     fun getFormatFromId(siteId : Long) : Flow<List<TaskContentKeys>>
 
+    @Query("SELECT siteId FROM task_content_keys_table WHERE formatId == :formatId")
+    suspend fun getSiteIdFromFormat(formatId: Long) : Long
+
 }

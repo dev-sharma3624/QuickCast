@@ -24,6 +24,7 @@ import com.example.quickcast.data_classes.SmsFormats.TaskUpdate
 import com.example.quickcast.enum_classes.SmsTypes
 import com.example.quickcast.room_db.background_workers.CreateTaskBgWorker
 import com.example.quickcast.room_db.background_workers.InvitationResponseBgWorker
+import com.example.quickcast.room_db.background_workers.TaskUpdateBgWorker
 import com.example.quickcast.services.ContactsService
 import com.example.quickcast.services.NotificationService
 import com.google.gson.GsonBuilder
@@ -119,9 +120,34 @@ class SmsReceiver : BroadcastReceiver() {
                 createTaskResponse(context, receivedMsg.message.siteId, receivedMsg.message, phoneNumber)
             }
 
-            is TaskUpdate -> {}
+            is TaskUpdate -> {
+                taskUpdateResponse(context, receivedMsg.message, phoneNumber)
+            }
         }
 
+
+    }
+
+    private fun taskUpdateResponse(
+        context: Context,
+        taskUpdate: TaskUpdate,
+        phoneNumber: String
+    ){
+
+        val inputData = workDataOf(
+            "format_Id" to taskUpdate.fId,
+            "is_App_In_Foreground" to isAppInForeground(),
+            "task_Update" to gson.toJson(taskUpdate),
+            "phone_Number" to phoneNumber
+        )
+
+        //generates one time work request with input data for SmsSenderWorker
+        val request = OneTimeWorkRequestBuilder<TaskUpdateBgWorker>()
+            .setInputData(inputData)
+            .build()
+
+        //enqueues request for background processing
+        WorkManager.getInstance(context).enqueue(request)
 
     }
 

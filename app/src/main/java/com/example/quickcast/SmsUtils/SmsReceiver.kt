@@ -20,6 +20,7 @@ import com.example.quickcast.data_classes.SmsFormats.CreateTask
 import com.example.quickcast.data_classes.SmsFormats.MessageContent
 import com.example.quickcast.data_classes.SmsFormats.SiteInvite
 import com.example.quickcast.data_classes.SmsFormats.SmsPackage
+import com.example.quickcast.data_classes.SmsFormats.TaskUpdate
 import com.example.quickcast.enum_classes.SmsTypes
 import com.example.quickcast.room_db.background_workers.CreateTaskBgWorker
 import com.example.quickcast.room_db.background_workers.InvitationResponseBgWorker
@@ -115,9 +116,10 @@ class SmsReceiver : BroadcastReceiver() {
             is SiteInvite -> siteInviteProcess(context, phoneNumber, receivedMsg.message)
             is InvitationResponse -> inviteResponse(context, phoneNumber, receivedMsg.message)
             is CreateTask -> {
-                // Todo: new task received notification, insertion to db, changing unread status
                 createTaskResponse(context, receivedMsg.message.siteId, receivedMsg.message, phoneNumber)
             }
+
+            is TaskUpdate -> {}
         }
 
 

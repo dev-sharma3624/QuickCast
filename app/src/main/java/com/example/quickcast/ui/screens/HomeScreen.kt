@@ -88,7 +88,7 @@ fun HomeScreen(
                 NavigationRailItems.SITES -> SiteScreen(
                     siteScreenVM = siteScreenVM,
                     onClickSite = {site->
-                        siteScreenVM.loadMessageList(site)
+                        siteScreenVM.loadMessagesAndFormats(site)
                         navHostController.navigate(OtherScreens.INDIVIDUAL_SITE.name)
                     }
                 )

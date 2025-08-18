@@ -8,6 +8,7 @@ import com.example.quickcast.data_classes.SmsFormats.InvitationResponse
 import com.example.quickcast.data_classes.SmsFormats.SendableMessageProperty
 import com.example.quickcast.data_classes.SmsFormats.SiteInvite
 import com.example.quickcast.data_classes.SmsFormats.SmsPackage
+import com.example.quickcast.data_classes.SmsFormats.TaskUpdate
 import com.example.quickcast.enum_classes.SmsTypes
 import com.example.quickcast.repositories.DatabaseRepository
 import com.example.quickcast.room_db.entities.Site
@@ -103,6 +104,40 @@ class SmsCreator(
         }
 
         return smsList
+    }
+
+    suspend fun createSmsPackageWithNumber(site : Site, formatId: Long, taskName: String, updateMsg: List<SendableMessageProperty>) : List<Pair<String, SmsPackage>> {
+
+        val smsList = mutableListOf<Pair<String, SmsPackage>>()
+
+        site.contactsList.forEach {
+            smsList.add(
+                Pair(
+                    it,
+                    SmsPackage(
+                        type = SmsTypes.TASK_UPDATE,
+                        message = TaskUpdate(
+                            fId = formatId,
+                            taskName = taskName,
+                            l = updateMsg
+                        )
+                    )
+                )
+            )
+        }
+
+
+        databaseRepository.sendUpdateMessage(
+            siteId = site.id,
+            taskUpdate = TaskUpdate(
+                fId = formatId,
+                taskName = taskName,
+                l = updateMsg
+            )
+        )
+
+        return smsList
+
     }
 
 }

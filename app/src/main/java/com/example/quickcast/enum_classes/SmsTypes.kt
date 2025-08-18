@@ -7,5 +7,6 @@ package com.example.quickcast.enum_classes
 enum class SmsTypes {
     SITE_INVITE,
     INVITATION_RESPONSE,
-    CREATE_TASK
+    CREATE_TASK,
+    TASK_UPDATE
 }

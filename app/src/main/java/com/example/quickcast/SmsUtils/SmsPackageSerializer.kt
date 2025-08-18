@@ -4,6 +4,7 @@ import com.example.quickcast.data_classes.SmsFormats.InvitationResponse
 import com.example.quickcast.data_classes.SmsFormats.CreateTask
 import com.example.quickcast.data_classes.SmsFormats.SiteInvite
 import com.example.quickcast.data_classes.SmsFormats.SmsPackage
+import com.example.quickcast.data_classes.SmsFormats.TaskUpdate
 import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import com.google.gson.JsonSerializationContext
@@ -23,6 +24,7 @@ class SmsPackageSerializer : JsonSerializer<SmsPackage> {
             is SiteInvite -> context.serialize(msg)
             is InvitationResponse -> context.serialize(msg)
             is CreateTask -> context.serialize(msg)
+            is TaskUpdate -> context.serialize(msg)
         }
 
         obj.add("message", messageJson)

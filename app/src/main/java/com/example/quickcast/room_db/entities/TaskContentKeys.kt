@@ -23,5 +23,6 @@ data class TaskContentKeys(
     @PrimaryKey(autoGenerate = true)
     val formatId: Long = 0,
     val siteId: Long,
+    val taskName : String,
     val format: String
 )

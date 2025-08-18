@@ -8,17 +8,18 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.quickcast.SmsUtils.SmsCreator
 import com.example.quickcast.data_classes.MessageProperties
+import com.example.quickcast.data_classes.SmsFormats.SendableMessageProperty
+import com.example.quickcast.data_classes.SmsFormats.TaskUpdate
 import com.example.quickcast.repositories.DatabaseRepository
 import com.example.quickcast.repositories.SmsRepository
 import com.example.quickcast.room_db.dto.MessageDTO
 import com.example.quickcast.room_db.entities.Site
+import com.example.quickcast.room_db.entities.TaskContentKeys
+import com.google.gson.Gson
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class SiteScreenVM(
@@ -30,6 +31,7 @@ class SiteScreenVM(
     lateinit var siteList : Flow<List<Site>>
 
     lateinit var messageList : Flow<List<MessageDTO>>
+    lateinit var formatList : Flow<List<TaskContentKeys>>
 
     var site : Site? = null
 
@@ -42,10 +44,11 @@ class SiteScreenVM(
         }
     }
 
-    fun loadMessageList(s: Site){
+    fun loadMessagesAndFormats(s: Site){
         site = s
         viewModelScope.launch {
             messageList = databaseRepository.getMessageList(s.id)
+            formatList = databaseRepository.getMessageFormatsFromSiteId(s.id)
         }
     }
 
@@ -54,6 +57,25 @@ class SiteScreenVM(
             val list = propertyList.filter { it.name.isNotBlank() && (it.value != null && it.value > 0) }
             val msgPairList = smsCreator.createSmsPackageWithNumber(list, site!!, taskName)
             smsRepository.sendMessage(msgPairList)
+        }
+    }
+
+    fun sendUpdate(formatId: Long, taskName: String, msgProperties: List<SendableMessageProperty>, valueList: List<String>) {
+        viewModelScope.launch(Dispatchers.IO + NonCancellable) {
+            val updateMsg = mutableListOf<SendableMessageProperty>()
+
+            msgProperties.forEach {
+                updateMsg.add(
+                    SendableMessageProperty(
+                    k = it.k,
+                    v = valueList[msgProperties.indexOf(it)].toInt(),
+                    t = it.t
+                ))
+            }
+
+            val smsList = smsCreator.createSmsPackageWithNumber(site!!, formatId, taskName, updateMsg)
+
+            smsRepository.sendMessage(smsList)
         }
     }
 

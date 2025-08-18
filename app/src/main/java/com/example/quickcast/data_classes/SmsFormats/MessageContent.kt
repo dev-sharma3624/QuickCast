@@ -56,3 +56,11 @@ data class SendableMessageProperty(
     val v : Int,
     val t : MessagePropertyTypes
 ): Parcelable
+
+
+@Parcelize
+data class TaskUpdate(
+    val fId : Long,
+    val taskName : String,
+    val l : List<SendableMessageProperty>
+) : MessageContent()

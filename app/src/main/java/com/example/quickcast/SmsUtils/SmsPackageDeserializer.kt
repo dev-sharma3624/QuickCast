@@ -5,6 +5,7 @@ import com.example.quickcast.data_classes.SmsFormats.InvitationResponse
 import com.example.quickcast.data_classes.SmsFormats.MessageContent
 import com.example.quickcast.data_classes.SmsFormats.SiteInvite
 import com.example.quickcast.data_classes.SmsFormats.SmsPackage
+import com.example.quickcast.data_classes.SmsFormats.TaskUpdate
 import com.example.quickcast.enum_classes.SmsTypes
 import com.google.gson.JsonDeserializationContext
 import com.google.gson.JsonDeserializer
@@ -29,6 +30,7 @@ class SmsPackageDeserializer : JsonDeserializer<SmsPackage> {
             SmsTypes.SITE_INVITE -> context.deserialize<SiteInvite>(messageJson, SiteInvite::class.java)
             SmsTypes.INVITATION_RESPONSE -> context.deserialize<InvitationResponse>(messageJson, InvitationResponse::class.java)
             SmsTypes.CREATE_TASK -> context.deserialize<CreateTask>(messageJson, CreateTask::class.java)
+            SmsTypes.TASK_UPDATE -> context.deserialize<TaskUpdate>(messageJson, TaskUpdate::class.java)
         }
 
         return SmsPackage(smsType, message)

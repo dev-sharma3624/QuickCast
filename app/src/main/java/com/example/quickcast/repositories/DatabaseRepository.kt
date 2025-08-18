@@ -3,6 +3,7 @@ package com.example.quickcast.repositories
 import android.util.Log
 import com.example.quickcast.data_classes.SmsFormats.CreateTask
 import com.example.quickcast.data_classes.SmsFormats.SiteInvite
+import com.example.quickcast.data_classes.SmsFormats.TaskUpdate
 import com.example.quickcast.enum_classes.SmsTypes
 import com.example.quickcast.room_db.dao.MessageDao
 import com.example.quickcast.room_db.dao.MsgFormatDao
@@ -65,35 +66,43 @@ class DatabaseRepository(
 
         val taskObject : CreateTask = gson.fromJson(taskString, CreateTask::class.java)
 
-        Log.d("taskObject", "$taskObject")
+        Log.d("taskObject", taskString)
 
         val formatId = formatDao.insertFormat(TaskContentKeys(
             siteId = siteId,
+            taskName = taskObject.taskName,
             format = gson.toJson(taskObject.l)
         ))
-
-        var messageString = "${taskObject.taskName}\n"
-
-
-        taskObject.l.forEach {
-            messageString = messageString.plus(
-                "${it.k} : ${it.v} : ${it.t.name}\n"
-            )
-            Log.d("after addition", messageString)
-        }
 
         messageDao.insert(Message(
             siteId = siteId,
             formatId = formatId,
             sentBy = phoneNumber,
             smsType = SmsTypes.CREATE_TASK,
-            content = messageString
+            content = taskString
         ))
         siteDao.updateSiteUnreadStatus(siteId, true)
+    }
+
+    fun getMessageFormatsFromSiteId(siteId: Long) : Flow<List<TaskContentKeys>>{
+        return formatDao.getFormatFromId(siteId)
     }
 
     suspend fun getSiteList() = siteDao.getAllSites()
 
     suspend fun getSiteFromId(siteId : Long) = siteDao.getSiteFromId(siteId)
+
+
+    suspend fun sendUpdateMessage(siteId: Long, taskUpdate: TaskUpdate, phoneNumber: String = "SELF") {
+        messageDao.insert(
+            Message(
+                siteId = siteId,
+                formatId = taskUpdate.fId,
+                sentBy = phoneNumber,
+                smsType = SmsTypes.TASK_UPDATE,
+                content = Gson().toJson(taskUpdate)
+            )
+        )
+    }
 
 }

@@ -6,11 +6,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.quickcast.data_classes.MessageGraph
+import com.example.quickcast.data_classes.SmsFormats.CreateTask
 import com.example.quickcast.data_classes.SmsFormats.SendableMessageProperty
+import com.example.quickcast.data_classes.SmsFormats.SmsPackage
+import com.example.quickcast.data_classes.SmsFormats.TaskUpdate
+import com.example.quickcast.enum_classes.SmsTypes
 import com.example.quickcast.repositories.DatabaseRepository
 import com.example.quickcast.room_db.entities.Site
 import com.example.quickcast.room_db.entities.TaskContentKeys
 import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -67,14 +72,43 @@ class ChartsVM(
             messageList = databaseRepository.getMessageListFromSiteAndFormatId(siteId, formatId)
                 .map { messageDTOS ->
                     messageDTOS.map {
-                        MessageGraph(
-                            msgId = it.msgId,
-                            sentBy = it.sentBy,
-                            smsType = it.smsType,
-                            content = gson.fromJson(it.content, SendableMessageProperty::class.java)
-                        )
+
+                        if(it.smsType == SmsTypes.CREATE_TASK){
+
+                            val createTask : CreateTask = gson.fromJson(
+                                it.content,
+                                CreateTask::class.java
+                            )
+
+                            MessageGraph(
+                                msgId = it.msgId,
+                                sentBy = it.sentBy,
+                                smsType = it.smsType,
+                                content = createTask.l
+                            )
+                        }else{
+
+                            val taskUpdate : TaskUpdate = gson.fromJson(
+                                it.content,
+                                TaskUpdate::class.java
+                            )
+
+                            MessageGraph(
+                                msgId = it.msgId,
+                                sentBy = it.sentBy,
+                                smsType = it.smsType,
+                                content = taskUpdate.l
+                            )
+                        }
                     }
                 }
+        }
+    }
+
+    fun createSingleCountFieldForMultipleContacts(){
+        viewModelScope.launch {
+            val l = messageList.first()
+
         }
     }
 

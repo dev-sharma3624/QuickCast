@@ -6,12 +6,12 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.CircularProgressIndicator
@@ -20,25 +20,30 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.example.quickcast.data_classes.MessageGraph
-import com.example.quickcast.room_db.entities.Site
-import com.example.quickcast.room_db.entities.TaskContentKeys
+import androidx.compose.ui.unit.sp
+import co.yml.charts.axis.AxisData
+import co.yml.charts.axis.DataCategoryOptions
+import co.yml.charts.common.model.Point
+import co.yml.charts.ui.barchart.BarChart
+import co.yml.charts.ui.barchart.models.BarChartData
+import co.yml.charts.ui.barchart.models.BarChartType
+import co.yml.charts.ui.barchart.models.BarData
+import co.yml.charts.ui.barchart.models.BarStyle
+import co.yml.charts.ui.wavechart.model.AxisPosition
+import com.example.quickcast.enum_classes.SmsTypes
 import com.example.quickcast.ui.theme.individualSiteBg
 import com.example.quickcast.viewModels.ChartsVM
-import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -69,6 +74,8 @@ fun ChartsScreen(){
             val formatList = viewModel.formatList.collectAsState(emptyList())
             val selectedFormat = remember { mutableIntStateOf(0) }
             var isFormatDropDownExpanded by remember { mutableStateOf(false) }
+
+            val messageList = viewModel.messageList.collectAsState(emptyList())
 
             Column {
 
@@ -159,6 +166,68 @@ fun ChartsScreen(){
                         )
                     }
                 }
+
+                LazyColumn(
+                    modifier = Modifier.fillMaxWidth()
+                        .weight(1f)
+                ) {
+                    item {
+
+                        Log.d(tag, "${messageList.value}")
+
+                        if(messageList.value.isNotEmpty()){
+
+                            val firstMsg = messageList.value.first { it.smsType == SmsTypes.CREATE_TASK }
+
+                            val keyList = firstMsg.content.map { it.k }
+                            val contactList = messageList.value.filter { it.sentBy != "SELF" }.map { it.sentBy }
+
+                            keyList.forEach {specificKey ->
+
+                                val maxValueForSpecificKey = messageList.value.flatMap { it.content }
+                                    .filter { it.k ==  specificKey}.maxOf { it.v }
+
+                                val yAxisData = contactList.map { contact ->
+
+                                    val allValues = messageList.value.filter { it.sentBy == contact }
+                                        .flatMap { it.content }.filter { it.k == specificKey }.map { it.v }
+
+                                    val calculation = allValues.sum() / 8
+
+                                    BarData(
+                                        point = Point(calculation.toFloat(), contactList.indexOf(contact).toFloat()),
+                                        label = contact.substring(4,9),
+                                        color = Color.DarkGray
+                                    )
+                                }
+
+                                Log.d(tag, "${maxValueForSpecificKey/5}")
+                                Log.d(tag, "$yAxisData")
+
+                                Column(
+                                    modifier = Modifier.fillMaxWidth()
+                                        .padding(8.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text(
+                                        text = specificKey,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 24.sp,
+                                        color = Color.DarkGray
+                                    )
+
+                                    MyBarChart(
+                                        xAxisStepSize = maxValueForSpecificKey / 5,
+                                        yAxisData = yAxisData
+                                    )
+                                }
+
+                            }
+                        }
+
+
+                    }
+                }
             }
 
         } else{
@@ -173,155 +242,88 @@ fun ChartsScreen(){
 
         }
 
-
-
-
     }
 
-    /*val siteList = viewModel.siteList.collectAsState(emptyList())
-    val selectedSite = remember { mutableIntStateOf(0) }
-    var isSiteDropDownExpanded by remember { mutableStateOf(false) }
+}
 
-    var formatList : State<List<TaskContentKeys>>? = remember { null }
-    val selectedFormat = remember { mutableStateOf<Int?>(null) }
-    var isFormatDropDownExpanded by remember { mutableStateOf(false) }
+@Composable
+fun MyBarChart(
+    xAxisStepSize: Int,
+    yAxisData: List<BarData>
+) {
 
-    var messageList : State<List<MessageGraph>>? = remember { null }
+    val yAxis = AxisData.Builder()
+        .axisStepSize(8.dp)
+        .startDrawPadding(4.dp)
+        .steps(yAxisData.size - 1)
+        .labelData { i -> yAxisData[i].label }
+        .axisLineColor(Color.Gray)
+        .axisLabelColor(Color.DarkGray)
+        .backgroundColor(Color.White)
+        .labelAndAxisLinePadding(20.dp)
+        .setDataCategoryOptions(DataCategoryOptions(
+            true
+        ))
+        .build()
 
+    val xAxis = AxisData.Builder()
+        .steps(5)
+        .axisOffset(0.dp)
+        .labelData { i -> (i * xAxisStepSize).toString() }
+        .axisLineColor(Color.Gray)
+        .axisLabelColor(Color.Gray)
+        .backgroundColor(Color.White)
+        .build()
 
-    if (formatList != null) {
-        Log.d(tag, "formatList : ${formatList.value}")
-    }
+    val barChartData = BarChartData(
+        chartData = yAxisData,
+        xAxisData = xAxis,
+        yAxisData = yAxis,
+        backgroundColor = Color.White,
+        barChartType = BarChartType.HORIZONTAL
+    )
 
-    if(siteList.value.isNotEmpty() && formatList == null){
-        formatList = viewModel.formatList.collectAsState(emptyList())
-        selectedFormat.value = 0
-    }
+    BarChart(
+        modifier = Modifier.height((67 * yAxisData.size).dp),
+        barChartData = barChartData
+    )
 
+    /*// 1. Define the data points for your bar chart
+    val barData = listOf(
+        BarData(Point(0f, 40f), label = "Q1"),
+        BarData(Point(1f, 90f), label = "Q2"),
+        BarData(Point(2f, 20f), label = "Q3"),
+        BarData(Point(3f, 60f), label = "Q4")
+    )
 
-    if((formatList != null && formatList.value.isNotEmpty()) && messageList == null){
-        messageList = viewModel.messageList.collectAsState(emptyList())
-    }
+    // 2. Configure the X-axis
+    val xAxisData = AxisData.Builder()
+        .axisStepSize(100.dp)
+        .steps(barData.size - 1)
+        .labelData { i -> barData[i].label }
+        .axisLineColor(Color.Gray)
+        .axisLabelColor(Color.Gray)
+        .build()
 
+    // 3. Configure the Y-axis
+    val yAxisData = AxisData.Builder()
+        .steps(5) // 5 labels on the Y-axis
+        .labelData { i -> (i * 20).toString() } // e.g., 0, 20, 40, 60, 80, 100
+        .axisLineColor(Color.Gray)
+        .axisLabelColor(Color.Gray)
+        .build()
 
-    LaunchedEffect(siteList.value) {
-        Log.d(tag, "siteList CR")
-        if(siteList.value.isNotEmpty()){
-            viewModel.loadFormats(siteList.value[selectedSite.intValue].id)
-        }
-    }
+    // 4. Combine all the data into a BarChartData object
+    val barChartData = BarChartData(
+        chartData = barData,
+        xAxisData = xAxisData,
+        yAxisData = yAxisData,
+        backgroundColor = Color.White,
+    )
 
-    LaunchedEffect(selectedSite.intValue) {
-        Log.d(tag, "selectedSite CR")
-        if(siteList.value.isNotEmpty()){
-            viewModel.loadFormats(siteList.value[selectedSite.intValue].id)
-        }
-    }
-
-    LaunchedEffect(selectedFormat.value) {
-        if(formatList != null && formatList.value.isNotEmpty()){
-            viewModel.loadMessages(siteList.value[selectedSite.intValue].id, formatList.value[selectedFormat.value!!].formatId)
-        }
-    }
-
-    Log.d(tag, "${messageList?.value}")
-
-
-    Column(
-        modifier = Modifier.fillMaxSize()
-            .padding(24.dp)
-    ) {
-
-        Column {
-
-            Row(
-                modifier = Modifier.fillMaxWidth()
-                    .padding(4.dp)
-                    .background(
-                        individualSiteBg
-                    )
-                    .clickable {
-                        isSiteDropDownExpanded = true
-                    },
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = if(siteList.value.isNotEmpty()){
-                        siteList.value[selectedSite.intValue].name
-                    }else { "" }
-                )
-
-                Icon(
-                    imageVector = Icons.Default.ArrowDropDown,
-                    contentDescription = null
-                )
-            }
-
-            DropdownMenu(
-                expanded = isSiteDropDownExpanded,
-                onDismissRequest = { isSiteDropDownExpanded = false },
-                modifier = Modifier.fillMaxWidth(0.7f)
-            ) {
-                siteList.value.forEach {
-                    DropdownMenuItem(
-                        text = { Text(
-                            text = it.name
-                        ) },
-                        onClick = {
-                            selectedSite.intValue = siteList.value.indexOf(it)
-                            isSiteDropDownExpanded = false
-                        },
-                    )
-                }
-            }
-        }
-
-        Column {
-            Row(
-                modifier = Modifier.fillMaxWidth()
-                    .padding(4.dp)
-                    .background(
-                        individualSiteBg
-                    )
-                    .clickable {
-                        isFormatDropDownExpanded = true
-                    },
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-
-
-                Text(
-                    text = if(formatList != null && formatList.value.isNotEmpty()){
-                        formatList.value[selectedFormat.value!!].taskName
-                    }else { "" }
-                )
-
-                Icon(
-                    imageVector = Icons.Default.ArrowDropDown,
-                    contentDescription = null
-                )
-            }
-
-            DropdownMenu(
-                expanded = isFormatDropDownExpanded,
-                onDismissRequest = { isFormatDropDownExpanded = false },
-                modifier = Modifier.fillMaxWidth(0.7f)
-            ) {
-                formatList?.value?.forEach {
-                    DropdownMenuItem(
-                        text = { Text(text = it.taskName) },
-                        onClick = {
-                            selectedFormat.value = formatList.value.indexOf(it)
-                            isFormatDropDownExpanded = false
-                        }
-                    )
-                }
-            }
-        }
-
-
-
-    }*/
-
-
+    // 5. Call the BarChart composable with the data
+    BarChart(
+        modifier = Modifier.height(300.dp),
+        barChartData = barChartData
+    )*/
 }

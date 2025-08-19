@@ -7,5 +7,5 @@ data class MessageGraph(
     val msgId: Int,
     val sentBy: String,
     val smsType: SmsTypes,
-    val content: SendableMessageProperty
+    val content: List<SendableMessageProperty>
 )

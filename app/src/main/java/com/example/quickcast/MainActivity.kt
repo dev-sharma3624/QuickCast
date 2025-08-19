@@ -7,11 +7,15 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.example.quickcast.data_classes.SmsFormats.MessageContent
 import com.example.quickcast.data_classes.SmsFormats.SiteInvite
 import com.example.quickcast.ui.screen_container.ScreenContainer
+import com.example.quickcast.ui.screens.ChartsScreen
 import com.example.quickcast.ui.theme.QuickCastTheme
 import com.example.quickcast.ui.theme.sideGrillLight
 import com.example.quickcast.viewModels.HomeVM

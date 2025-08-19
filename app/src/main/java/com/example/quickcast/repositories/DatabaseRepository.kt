@@ -88,7 +88,7 @@ class DatabaseRepository(
         return formatDao.getFormatFromId(siteId)
     }
 
-    suspend fun getSiteList() = siteDao.getAllSites()
+    fun getSiteList() = siteDao.getAllSites()
 
     suspend fun getSiteFromId(siteId : Long) = siteDao.getSiteFromId(siteId)
 
@@ -107,6 +107,10 @@ class DatabaseRepository(
 
     suspend fun getSiteIdFromFormatId(formatId: Long): Long {
         return formatDao.getSiteIdFromFormat(formatId)
+    }
+
+    fun getMessageListFromSiteAndFormatId(siteId: Long, formatId: Long): Flow<List<MessageDTO>> {
+        return messageDao.getMessageListFromSiteAndFormatId(siteId, formatId)
     }
 
 }

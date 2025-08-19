@@ -11,6 +11,7 @@ import com.example.quickcast.room_db.background_workers.CreateTaskBgWorker
 import com.example.quickcast.room_db.background_workers.InvitationResponseBgWorker
 import com.example.quickcast.room_db.background_workers.TaskUpdateBgWorker
 import com.example.quickcast.services.NotificationService
+import com.example.quickcast.viewModels.ChartsVM
 import com.example.quickcast.viewModels.HomeVM
 import com.example.quickcast.viewModels.SiteScreenVM
 import org.koin.android.ext.android.get
@@ -61,7 +62,8 @@ class QuickCast : Application() {
                 databaseModule,
                 module { factory { SmsCreator(get()) } },
                 module { viewModel { HomeVM(get(), get()) } },
-                module { viewModel { SiteScreenVM(get(), get(), get()) } }
+                module { viewModel { SiteScreenVM(get(), get(), get()) } },
+                module { viewModel { ChartsVM(get()) } }
             )
         }
 

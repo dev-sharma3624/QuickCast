@@ -93,7 +93,7 @@ fun HomeScreen(
                     }
                 )
 
-                NavigationRailItems.COMPARISON -> BlankScreen("Comparison")
+                NavigationRailItems.COMPARISON -> ChartsScreen()
 
                 NavigationRailItems.LIVE_TRACKING -> BlankScreen("Live Tracking")
 

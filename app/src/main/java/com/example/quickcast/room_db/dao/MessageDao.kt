@@ -19,4 +19,12 @@ interface MessageDao {
         WHERE siteId = :siteId
     """)
     fun getMessagesDTOForSite(siteId: Long): Flow<List<MessageDTO>>
+
+
+    @Query("""
+        SELECT msgId, sentBy, smsType, content 
+        FROM message_table
+        WHERE siteId = :siteId AND formatId = :formatId
+    """)
+    fun getMessageListFromSiteAndFormatId(siteId: Long, formatId: Long): Flow<List<MessageDTO>>
 }
